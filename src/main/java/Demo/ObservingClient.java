@@ -1,5 +1,6 @@
 package Demo;
 
+import Protocol.CoAP;
 import Protocol.CoapClient;
 import Protocol.ObserveHandler;
 

@@ -17,7 +17,7 @@ public final class CoAP {
     public static final int OPTION_DELTA_BITS_LENGTH = 4;
     public static final int OPTION_LENGTH_BITS_LENGTH = 4;
     public static final String PROTOCAL_SCHEME = "coap";
-    public static final String PROTOCAL_SCHEME_SEPARATOR = "//";
+    public static final String PROTOCOL_SCHEME_SEPARATOR = "//";
     public static final String SCHEME_SEPARATOR = "/";
 
     public static final byte END_HEADER_BYTE = (byte) (0xFF);

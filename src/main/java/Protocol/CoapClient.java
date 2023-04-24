@@ -109,7 +109,7 @@ public class CoapClient {
     }
 
     private String getHostName(String url) {
-        int separator = url.indexOf(CoAP.PROTOCAL_SCHEME_SEPARATOR);
+        int separator = url.indexOf(CoAP.PROTOCOL_SCHEME_SEPARATOR);
         if (separator == -1)
             return null;
         int portIndex = url.indexOf(":");

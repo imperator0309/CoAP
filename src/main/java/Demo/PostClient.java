@@ -14,7 +14,7 @@ public class PostClient {
                 Response response = client.post("Hello World".getBytes());
                 if (response != null)
                     if (response.getCode() == CoAP.ResponseCode.CREATE)
-                        System.out.println("Demo.Server>>" + new String(response.getPayload()));
+                        System.out.println("Server>>" + new String(response.getPayload()));
 
                 TimeUnit.MILLISECONDS.sleep(3000);
             }
