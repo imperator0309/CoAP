@@ -66,11 +66,12 @@ public class ObserveHandler extends Thread{
             if (response == null)
                 return false;
 
-            if (response.getType() == CoAP.Type.ACK) {
+            if (response.getType() == CoAP.Type.ACK && response.getCode() == CoAP.ResponseCode.CONTENT) {
                 datagramSocket.setSoTimeout(0);
                 return true;
             } else if (response.getType() == CoAP.Type.RST &&
                     response.getCode() == CoAP.ResponseCode.METHOD_NOT_ALLOWED) {
+                datagramSocket.setSoTimeout(0);
                 throw new CoapClientException("Resource cannot be observed");
             } else {
                 return false;
@@ -96,7 +97,9 @@ public class ObserveHandler extends Thread{
             buffer = new byte[packet.getLength()];
             reader.read(buffer, 0, buffer.length);
             response = new Response(buffer);
-            System.out.println(new String(response.getPayload()));
+            if (response != null)
+                if (response.getPayload() != null)
+                    System.out.println("Observe: " + new String(response.getPayload()));
         } catch (IOException e) {
             e.printStackTrace();
         }

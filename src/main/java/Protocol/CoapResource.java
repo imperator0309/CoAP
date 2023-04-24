@@ -28,8 +28,9 @@ public class CoapResource implements Resource {
                             Response response = new Response(exchange.getRequest(), CoAP.Type.ACK);
                             exchange.setResponse(response);
                             exchange.respond(CoAP.ResponseCode.CONTENT, data);
-                        }
-                        if (exchange.request().getType() == CoAP.Type.RST) {
+
+                            System.out.println("Establish Observation Relation Successfully");
+                        } else if (exchange.request().getType() == CoAP.Type.RST) {
                             observers.remove(exchange.getEndpoint());
                         }
                     } else {
