@@ -112,11 +112,17 @@ public class CoapClient {
         int separator = url.indexOf(CoAP.PROTOCOL_SCHEME_SEPARATOR);
         if (separator == -1)
             return null;
-        int portIndex = url.indexOf(":");
+
+        int portIndex = -1;
+        for (int i = separator + 2; i < url.length(); i++) {
+            if (url.charAt(i) == ':') {
+                portIndex = i;
+                break;
+            }
+        }
         if (portIndex == -1)
             return null;
-        if (portIndex <= separator + 1)
-            return null;
+
         return url.substring(separator + 2, portIndex);
     }
 

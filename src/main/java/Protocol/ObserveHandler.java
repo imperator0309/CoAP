@@ -87,7 +87,7 @@ public class ObserveHandler extends Thread{
         }
     }
 
-    public void observation() {
+    public synchronized void observation() {
         try {
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length);
