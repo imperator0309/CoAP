@@ -82,10 +82,13 @@ public class CoapClient {
     /**
      * start observing an observable resource
      */
-    public synchronized void observe() {
-        observeHandler = new ObserveHandler(this);
-        observeHandler.setObserving(true);
-        observeHandler.start();
+    public synchronized void observe() throws CoapClientException{
+        if (observeHandler == null) {
+            throw new CoapClientException("Observing Handler Cannot be Null");
+        } else {
+            observeHandler.setObserving(true);
+            observeHandler.start();
+        }
     }
 
     /**

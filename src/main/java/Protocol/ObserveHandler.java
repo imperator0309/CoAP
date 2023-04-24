@@ -97,9 +97,6 @@ public class ObserveHandler extends Thread{
             buffer = new byte[packet.getLength()];
             reader.read(buffer, 0, buffer.length);
             response = new Response(buffer);
-            if (response != null)
-                if (response.getPayload() != null)
-                    System.out.println("Observe: " + new String(response.getPayload()));
         } catch (IOException e) {
             e.printStackTrace();
         }
