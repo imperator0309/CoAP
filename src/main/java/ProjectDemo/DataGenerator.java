@@ -23,6 +23,7 @@ public class DataGenerator extends Thread {
 
     @Override
     public void run() {
+        running = true;
         while (running) {
             try {
                 sendData();

@@ -7,6 +7,19 @@ public class Sensor {
     private CommandReceiver commandReceiver;
     private int sensor_id;
 
+    public static void main(String[] args) {
+        try {
+            CoapClient client1 = new CoapClient("coap//localhost:5683/temperature");
+            CoapClient client2 = new CoapClient("coap//localhost:5683/command");
+
+            Sensor sensor = new Sensor(1, client1, client2, 5000);
+            sensor.run();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public Sensor(int id, CoapClient sender, CoapClient receiver, long interval) {
         this.sensor_id = id;
         this.dataGenerator = new DataGenerator(this.sensor_id, sender, interval);

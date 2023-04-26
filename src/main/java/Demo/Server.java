@@ -20,7 +20,6 @@ public class Server {
 
         @Override
         public void handleGET(Exchange exchange) {
-            System.out.println("Handle GET");
             exchange.respond(CoAP.ResponseCode.CONTENT, "Hello".getBytes());
         }
 

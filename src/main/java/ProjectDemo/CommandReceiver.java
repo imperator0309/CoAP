@@ -45,22 +45,31 @@ public class CommandReceiver extends Thread{
             Response response = getResponse();
             if (response != null) {
                 if (response.getPayload() != null) {
-                    String command = new String(response.getPayload());
-                    CommandMessage commandMessage = mapper.convertValue(command, CommandMessage.class);
-                    if (commandMessage.getSensor_id() == dataGenerator.getSensor_id()) {
-                        switch (commandMessage.getCommand()) {
-                            case SUSPEND -> {
-                                if (dataGenerator.isRunning()) {
-                                    dataGenerator.setRunning(false);
+                    try {
+                        String command = new String(response.getPayload());
+                        CommandMessage commandMessage = mapper.convertValue(command, CommandMessage.class);
+                        if (commandMessage.getSensor_id() == dataGenerator.getSensor_id()) {
+                            switch (commandMessage.getCommand()) {
+                                case SUSPEND -> {
+                                    if (dataGenerator.isRunning()) {
+                                        dataGenerator.wait();
+                                        dataGenerator.setRunning(false);
+                                    }
                                 }
-                            }
-                            case RESUME -> {
-                                if (!dataGenerator.isRunning()) {
-                                    dataGenerator.setRunning(true);
-                                    dataGenerator.start();
+                                case RESUME -> {
+                                    if (!dataGenerator.isRunning()) {
+                                        dataGenerator.setRunning(true);
+                                        if (dataGenerator.isAlive()) {
+                                            notifyAll();
+                                        } else {
+                                            dataGenerator.start();
+                                        }
+                                    }
                                 }
                             }
                         }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }

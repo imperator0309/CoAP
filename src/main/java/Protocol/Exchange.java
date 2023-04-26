@@ -71,6 +71,7 @@ public class Exchange {
         DatagramSocket datagramSocket = null;
         try {
             datagramSocket = new DatagramSocket();
+            datagramSocket.setSoTimeout(5000);
 
             byte[] data = request.toByteArray();
             DatagramPacket outPkt = new DatagramPacket(data, 0, data.length,
