@@ -25,7 +25,8 @@ public class DataGenerator extends Thread {
 
     @Override
     public void run() {
-        while (isRunning()) {
+        running = true;
+        while (running) {
             try {
                 generateData();
                 TimeUnit.MILLISECONDS.sleep(time_interval);
@@ -35,9 +36,9 @@ public class DataGenerator extends Thread {
         }
     }
 
-    private void generateData() {
+    private synchronized void generateData() {
         try {
-            SensorMessage message = new SensorMessage(this.sensor_id, generator.nextDouble(10.0, 44.0),
+            SensorMessage message = new SensorMessage(this.sensor_id, generator.nextInt(30) + 10,
                     System.currentTimeMillis());
             String json = mapper.writeValueAsString(message);
             client.post(json.getBytes());

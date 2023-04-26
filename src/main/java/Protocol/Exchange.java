@@ -87,7 +87,9 @@ public class Exchange {
             byte[] receiver = new byte[inPkt.getLength()];
             reader.read(receiver, 0, receiver.length);
 
-            response = new Response(receiver);
+            if (receiver != null) {
+                response = new Response(receiver);
+            }
 
             reader.close();
         } catch (IOException e) {
