@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Random;
 
 import CoAPException.*;
@@ -76,10 +77,10 @@ public class ObserveHandler extends Thread{
             } else {
                 return false;
             }
+        } catch (SocketTimeoutException ex) {
+            return false;
         } catch (MessageFormatException e) {
             e.printStackTrace();
-            return false;
-        } catch (SocketException ex) {
             return false;
         } catch (IOException e) {
             e.printStackTrace();

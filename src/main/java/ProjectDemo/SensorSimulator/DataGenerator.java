@@ -24,24 +24,25 @@ public class DataGenerator extends Thread {
     }
 
     @Override
-    public void run() {
-        running = true;
-        while (running) {
-            try {
-                generateData();
-                TimeUnit.MILLISECONDS.sleep(time_interval);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        }
+    public  void run() {
+       while (true) {
+           try {
+               generateData();
+               TimeUnit.MILLISECONDS.sleep(time_interval);
+           } catch (InterruptedException ex) {
+               ex.printStackTrace();
+           }
+       }
     }
 
-    private synchronized void generateData() {
+    private void generateData() {
         try {
-            SensorMessage message = new SensorMessage(this.sensor_id, generator.nextInt(30) + 10,
-                    System.currentTimeMillis());
-            String json = mapper.writeValueAsString(message);
-            client.post(json.getBytes());
+            if (isRunning()) {
+                SensorMessage message = new SensorMessage(this.sensor_id, generator.nextInt(30) + 10,
+                        System.currentTimeMillis());
+                String json = mapper.writeValueAsString(message);
+                client.post(json.getBytes());
+            }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

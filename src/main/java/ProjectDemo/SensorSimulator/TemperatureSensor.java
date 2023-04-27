@@ -31,7 +31,7 @@ public class TemperatureSensor extends Thread {
             CoapClient receiver = new CoapClient(cmdResource);
 
             this.dataGenerator = new DataGenerator(sensor_id, sender, timeInterval);
-            this.commandReceiver = new CommandReceiver(sensor_id, dataGenerator, receiver);
+            this.commandReceiver = new CommandReceiver(this, receiver);
         } catch (CoapClientException ex) {
             ex.printStackTrace();
         }

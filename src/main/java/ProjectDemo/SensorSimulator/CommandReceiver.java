@@ -9,15 +9,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommandReceiver extends Thread {
-    private int sensor_id;
-    private DataGenerator dataGenerator;
+    private final TemperatureSensor sensor;
     private CoapClient client;
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public CommandReceiver(int sensor_id, DataGenerator dataGenerator, CoapClient client) {
-        this.sensor_id = sensor_id;
-        this.dataGenerator = dataGenerator;
+    public CommandReceiver(TemperatureSensor sensor, CoapClient client) {
+        this.sensor = sensor;
         this.client = client;
     }
 
@@ -34,35 +32,20 @@ public class CommandReceiver extends Thread {
     private void changeSensorState(CommandMessage message) {
         switch (message.getCommand()) {
             case SUSPEND -> {
-                if (this.dataGenerator.isRunning()) {
-                    try {
-                        this.dataGenerator.wait();
-                        this.dataGenerator.setRunning(false);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                if (sensor.getDataGenerator().isRunning()) {
+                    sensor.getDataGenerator().setRunning(false);
                 }
             }
             case RESUME -> {
-                if (!this.dataGenerator.isRunning()) {
-                    if (this.dataGenerator.isAlive()) {
-                        this.dataGenerator.setRunning(true);
-                        notifyAll();
-                    } else {
-                        this.dataGenerator.setRunning(true);
-                        this.dataGenerator.start();
-                    }
+                if (!sensor.getDataGenerator().isRunning()) {
+                    sensor.getDataGenerator().setRunning(true);
                 }
             }
         }
     }
 
-    public int getSensor_id() {
-        return sensor_id;
-    }
-
-    public void setSensor_id(int sensor_id) {
-        this.sensor_id = sensor_id;
+    public TemperatureSensor getSensor() {
+        return sensor;
     }
 
     public CoapClient getClient() {
@@ -71,14 +54,6 @@ public class CommandReceiver extends Thread {
 
     public void setClient(CoapClient client) {
         this.client = client;
-    }
-
-    public DataGenerator getDataGenerator() {
-        return dataGenerator;
-    }
-
-    public void setDataGenerator(DataGenerator dataGenerator) {
-        this.dataGenerator = dataGenerator;
     }
 
     public static class CommandListener extends ObserveHandler {
@@ -97,8 +72,8 @@ public class CommandReceiver extends Thread {
                     String json = new String(response.getPayload());
                     try {
                         CommandMessage command = mapper.readValue(json, CommandMessage.class);
-                        if (command.getSensor_id() == this.receiver.getSensor_id()) {
-
+                        if (command.getSensor_id() == receiver.getSensor().getSensor_id()) {
+                            this.receiver.changeSensorState(command);
                         }
                     } catch (JsonProcessingException ex) {
                         ex.printStackTrace();
