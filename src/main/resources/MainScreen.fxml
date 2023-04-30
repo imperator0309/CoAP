@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.web.WebView?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@layout.css" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ProjectDemo.Server.GUI.MenuController">
+    <tabs>
+        <Tab text="Sensors">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: white;">
+                    <children>
+                        <ListView id="sensorListView" fx:id="sensorView" layoutX="31.0" layoutY="61.0" prefHeight="470.0" prefWidth="259.0" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="31.0" AnchorPane.topAnchor="61.0">
+                            <contextMenu>
+                                <ContextMenu fx:id="sensorListViewMenu">
+                                    <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#onChangingStatus" text="Change status" />
+                                    </items>
+                                </ContextMenu>
+                            </contextMenu></ListView>
+                        <AnchorPane id="sensorViewPane" layoutX="304.0" layoutY="61.0" prefHeight="470.0" prefWidth="567.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="304.0" AnchorPane.rightAnchor="29.0" AnchorPane.topAnchor="61.0">
+                            <children>
+                                <WebView fx:id="chartView" layoutX="3.0" layoutY="48.0" prefHeight="374.0" prefWidth="561.0" AnchorPane.bottomAnchor="6.571441650390625" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.85711669921875" AnchorPane.topAnchor="48.0" />
+                            </children></AnchorPane>
+                        <Label fx:id="noteLabel" layoutX="32.0" layoutY="536.0" style="-fx-font-size: 11;" text="Right click on a sensor to modify the status" AnchorPane.bottomAnchor="6.85714285714289" AnchorPane.leftAnchor="32.0" />
+                        <Label fx:id="resultLabel" layoutX="14.0" layoutY="25.0" text="This window displays the number of active sensors varied by time:" />
+                    </children></AnchorPane>
+            </content>
+        </Tab>
+        <Tab fx:id="throughputTab" text="Throughput">
+         <content>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <WebView layoutX="100.0" layoutY="95.0" prefHeight="250.0" prefWidth="600.0" />
+               </children>
+            </AnchorPane>
+         </content></Tab>
+    </tabs>
+</TabPane>
