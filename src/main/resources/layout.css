@@ -1,0 +1,161 @@
+.root {
+    -fx-font-size: 13pt;
+}
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: #D8F1FE
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
+    -fx-text-fill: white;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #0093ff;
+    -fx-text-fill: white;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:top {
+    -fx-background-color: #a5b9cb;
+    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: #1939B7;
+    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: white;
+}
+
+.menu-item >.label {
+    -fx-font-size: 10pt;
+}
+.menu-item:focused {
+    -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
+    -fx-text-fill: white;
+}
+.menu-item:focused > .label {
+   -fx-text-fill: -fx-focused-text-base-color;
+}
+
+.scroll-bar {
+    -fx-font-size: 8px;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color :transparent;
+    -fx-border-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-border-radius :1.0em;
+}
+
+.scroll-bar:horizontal .increment-button ,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 0.0 10.0 0.0;
+
+}
+
+.scroll-bar:vertical .increment-button ,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 10.0 0.0 0.0;
+
+}
+
+ .scroll-bar .increment-arrow,
+ .scroll-bar .decrement-arrow{
+    -fx-shape : " ";    
+    -fx-padding :0.1em 0.0;
+}
+
+ .scroll-bar:vertical .increment-arrow,
+ .scroll-bar:vertical .decrement-arrow{
+    -fx-shape : " ";    
+    -fx-padding :0.0 0.1em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color :derive(black,90.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 1.0em;
+}
+
+.scroll-bar:horizontal .thumb:hover,
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color :derive(#4D4C4F,10.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 1.0em;
+}
+
+.controlBtn.button {
+    -fx-background-color: #1E5AB5;
+    -fx-text-fill: white;
+    -fx-background-radius: 12px;
+}
+.controlBtn.button:hover {
+    -fx-background-color: #2B79D8;
+}
+.controlBtn.button:armed {
+    -fx-background-color: #133F92;
+}
+.sensorListViewPane {
+    -fx-border-color: transparent transparent #B77C1D transparent;
+    -fx-background-color: white;
+}
+
+.html-editor .button, .html-editor .toggle-button {
+    -fx-padding: 0.333333em 0.416667em 0.333333em 0.416667em; /* 4 5 4 5 */
+    -fx-background-color: white;
+}
+.html-editor .button:hover, .html-editor .toggle-button:hover {
+    -fx-background-color: #EEEEEE;
+}
+.html-editor .button:armed, .html-editor .toggle-button:selected {
+    -fx-background-color: derive(#EEEEEE, -10%);
+}
+
+.html-editor .top-toolbar {
+    -fx-background-color: #F8F8F8;
+}
+.html-editor .bottom-toolbar {
+    -fx-background-color: #F8F8F8;
+    -fx-border-color: #EEEEEE transparent #EEEEEE transparent
+}
+.combo-box > .list-cell {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+}
+.combo-box-base {
+    -fx-background-color: white;
+}
+
+.context-menu {
+    -fx-background-insets: 0, 1;
+    -fx-effect: null;
+}
+.text-area, .list-view, .html-editor, #sensorViewPane {
+    -fx-background-color: white;
+    -fx-border-color: #a5b9cb;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.text-area:focused, .list-view:focused {
+    -fx-border-color: #1E5AB5;
+}
+.text-area .content {
+    -fx-background-color: transparent, white, transparent, white;
+}
+
+.text-area:focused .content {
+    -fx-background-color: transparent, white, transparent, white;
+}
