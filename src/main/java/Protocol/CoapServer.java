@@ -31,44 +31,12 @@ public class CoapServer extends Thread {
                 serverSocket.receive(inPkt);
 
                 Endpoint endpoint = new Endpoint(inPkt.getAddress(), inPkt.getPort());
-                //Exchange exchange = new Exchange(endpoint);
 
                 buffer = new byte[inPkt.getLength()];
                 ByteArrayInputStream reader = new ByteArrayInputStream(inPkt.getData(), 0, inPkt.getLength());
                 reader.read(buffer, 0, buffer.length);
 
                 Request request = new Request(buffer);
-
-                /*if (request == null) {
-                    Response response = new Response();
-                    response.setType(CoAP.Type.NON);
-                    response.setTKL(0);
-                    response.setMessageID(0);
-                    response.setToken(null);
-                    response.setOption(null);
-
-                    exchange.setResponse(response);
-                    exchange.respond(CoAP.ResponseCode.BAD_REQUEST, null);
-                } else if (request.getOption().getValue() == null) {
-                    Response response = new Response(request, CoAP.Type.NON);
-                    exchange.setResponse(response);
-                    exchange.respond(CoAP.ResponseCode.BAD_OPTION, null);
-                } else {
-                    exchange.setRequest(request);
-                    String uri = new String(request.getOption().getValue(), 0,
-                            request.getOption().getOptionLength());
-
-                    CoapResource resource = getResource(uri);
-
-                    if (resource == null) {
-                        Response response = new Response(request, CoAP.Type.NON);
-                        exchange.setResponse(response);
-                        exchange.respond(CoAP.ResponseCode.NOT_FOUND, null);
-                    } else {
-                        exchange.setResponse(new Response(request, CoAP.Type.NON));
-                        resource.handleRequest(exchange);
-                    }
-                }*/
 
                 HandleClient handleClient = new HandleClient(this.root, request, endpoint);
                 handleClient.start();
