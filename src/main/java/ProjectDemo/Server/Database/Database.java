@@ -38,6 +38,32 @@ public class Database {
 
     }
 
+    public static Database getDatabase() {
+        return database;
+    }
+
+
+    public Connection getConnection() {
+        if (connection == null) {
+            try {
+                connection = DriverManager.getConnection(host, admin, password);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return connection;
+    }
+
+    public void closeConnection() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateSensorValue(String jsonMessage) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -149,31 +175,5 @@ public class Database {
             ex.printStackTrace();
         }
         return throughput;
-    }
-
-    public static Database getDatabase() {
-        return database;
-    }
-
-
-    public Connection getConnection() {
-        if (connection == null) {
-            try {
-                connection = DriverManager.getConnection(host, admin, password);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return connection;
-    }
-
-    public void closeConnection() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }
