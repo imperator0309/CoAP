@@ -106,7 +106,7 @@
 .controlBtn.button:armed {
     -fx-background-color: #133F92;
 }
-.sensorListViewPane {
+.sensorViewPane {
     -fx-border-color: transparent transparent #B77C1D transparent;
     -fx-background-color: white;
 }

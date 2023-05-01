@@ -1,32 +1,33 @@
 package ProjectDemo.Server.GUI;
 
 import Protocol.CoapServer;
-import javafx.application.Application;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
+
 import javafx.stage.Stage;
 
-import javafx.scene.SnapshotParameters;
+
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.image.WritableImage;
-import javafx.embed.swing.SwingFXUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+
 import java.text.SimpleDateFormat;
-import java.util.Base64;
+
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -34,21 +35,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class MenuController extends Application {
+public class MenuController {
     @FXML
     private ListView<String> sensorView;
-    @FXML
-    private Tab throughputTab;
     @FXML
     private Label noteLabel;
     @FXML
     private Label resultLabel;
     @FXML
-    private WebView chartView;
+    private WebView sensorDetail;
+    @FXML
+    private Pane sensorPane;
     final int WINDOW_SIZE = 10;
     private ScheduledExecutorService scheduledExecutorService;
 
-    private void showChart(ScheduledExecutorService scheduledExecutorService) throws IOException {
+    public void showSensorChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
         final NumberAxis yAxis = new NumberAxis(0, 20, 1);
         xAxis.setLabel("Time");
@@ -69,17 +70,12 @@ public class MenuController extends Application {
 
         // add series to chart
         lineChart.getData().add(series);
-        lineChart.setPrefSize(561, 374);
-
-        /*WritableImage image = lineChart.snapshot(new SnapshotParameters(), null);
-        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, "png", outputStream);
-        byte[] imageBytes = outputStream.toByteArray();
-        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-        String html = "<html><body><img src=\"data:image/png;base64," + base64Image + "\"/></body></html>";
-        chartView.getEngine().loadContent(html);
-         */
+        lineChart.setPrefSize(600, 400);
+        Stage stage2 = new Stage();
+        stage2.setTitle("Sensor chart");
+        Scene scene = new Scene(lineChart);
+        stage2.setScene(scene);
+        stage2.show();
 
         // this is used to display time in mm:ss format
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -98,11 +94,14 @@ public class MenuController extends Application {
                 // put random number with current time
                 series.getData().add(
                         new XYChart.Data<>(simpleDateFormat.format(now), random));
-
                 if (series.getData().size() > WINDOW_SIZE)
                     series.getData().remove(0);
             });
         }, 0, 4000, TimeUnit.MILLISECONDS);
+    }
+
+    public void showThroughputChart(MouseEvent mouseEvent) {
+
     }
 
     public void initialize() {
@@ -112,12 +111,10 @@ public class MenuController extends Application {
             server.add(new Main.CommandResource());
             server.start();
             //throughputTab.setContent(FXMLLoader.load(getClass().getClassLoader().getResource("Throughput.fxml")));
-            noteLabel.setText("This window displays the number of active sensors varied by time:");
-            resultLabel.setText("Right-click on a sensor to modify the status");
+            resultLabel.setText("Sensor statistics");
+            noteLabel.setText("Right-click on a sensor to modify the status");
             sensorView.setVisible(false);
-            System.out.println("Goes here");
-            showChart(scheduledExecutorService);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
             alert1.setTitle("Warning!");
@@ -154,14 +151,14 @@ public class MenuController extends Application {
         }
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-
-    }
-
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-        scheduledExecutorService.shutdownNow();
+    public void onClickingASensor(MouseEvent mouseEvent) {
+        String currentSensor = sensorView.getSelectionModel().getSelectedItem();
+        if (currentSensor != null) {
+            sensorPane.setVisible(true);
+            sensorDetail.getEngine().loadContent("Content of sensor");
+        } else {
+            sensorDetail.getEngine().loadContent("No sensor clicked");
+            sensorPane.setVisible(false);
+        }
     }
 }
