@@ -88,6 +88,21 @@ public class Database {
         }
     }
 
+    /**
+     * Doi trang thai sensor trong database co id = sensor_id, status dau vao la RUNNING hoac SUSPENDED
+     * @param sensor_id
+     * @param status
+     */
+    public void changeSensorStatus(int sensor_id, String status) {
+        try {
+            String query = "UPDATE sensor SET sensor_status=" + status + "WHERE sensor_id=" + sensor_id + ";";
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public double getSensorData() {
         double sensorData = -1;
 
