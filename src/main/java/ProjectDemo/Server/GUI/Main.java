@@ -3,16 +3,26 @@ package ProjectDemo.Server.GUI;
 import ProjectDemo.Message.SensorMessage;
 import Protocol.CoAP;
 import Protocol.CoapResource;
-import Protocol.CoapServer;
 import Protocol.Exchange;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
+public class Main extends Application {
     public static void main(String[] args) {
-        CoapServer server = new CoapServer();
-        server.add(new TemperatureResource());
-        server.add(new CommandResource());
-        server.start();
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("MainScreen.fxml"));
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setTitle("Sensor Management");
+        primaryStage.show();
     }
 
     public static class TemperatureResource extends CoapResource {
@@ -39,8 +49,8 @@ public class Main {
 
                     double delay = (System.currentTimeMillis() - message.getLast_time_modified());
 
-                    System.out.println(json + " | delay:" + delay+ "ms | throughput:" +
-                            payload.length * 8 / (delay / 1000  * 1024) + "Kbps");
+                    System.out.println(json + " | delay:" + delay + "ms | throughput:" +
+                            payload.length * 8 / (delay / 1000 * 1024) + "Kbps");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,3 +86,4 @@ public class Main {
         }
     }
 }
+
