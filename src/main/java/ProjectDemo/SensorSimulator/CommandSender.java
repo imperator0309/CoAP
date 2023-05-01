@@ -1,4 +1,4 @@
-package ProjectDemo;
+package ProjectDemo.SensorSimulator;
 
 import ProjectDemo.Message.CommandMessage;
 import Protocol.CoapClient;
