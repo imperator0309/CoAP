@@ -18,24 +18,17 @@ public class Database {
     public static double CALCULATING_COEFFICIENT = 0.25;
 
     public static void main(String[] args) {
-        Database database = getDatabase();
-        Connection connection = database.getConnection();
-
-        try {
-            String query = "SELECT * FROM sensor WHERE sensor_id=" + 1 + ";";
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(query);
-
-            if (!result.next()) {
-                System.out.println("NULL");
-            }
-        } catch (Exception e) {
-
-        }
+        Database database1 = getDatabase();
+        Connection connection1 = database.getConnection();
+        database1.closeConnection();
     }
 
     private Database() {
-
+        try {
+            connection = DriverManager.getConnection(host, admin, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Database getDatabase() {
@@ -69,7 +62,7 @@ public class Database {
             ObjectMapper mapper = new ObjectMapper();
             SensorMessage message = mapper.readValue(jsonMessage, SensorMessage.class);
 
-            String query = "SELECT * FROM sensor WHERE sensor_id=" + message.getSensor_id() + ";";
+            String query = "SELECT * FROM sensor WHERE sensor_id = " + message.getSensor_id() + ";";
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(query);
 
@@ -92,8 +85,8 @@ public class Database {
                         CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.length()) /
                                 (System.currentTimeMillis() - message.getLast_time_modified()));
 
-                query = "UPDATE sensor SET sensor_data=" + message.getTemperature() + ",delay=" + delay +
-                        "throughput=" + throughput + " WHERE sensor_id=" + message.getSensor_id() +";";
+                query = "UPDATE sensor SET sensor_data=" + message.getTemperature() + ", delay=" + delay + ", "
+                        + "throughput=" + throughput + " WHERE sensor_id=" + message.getSensor_id() +";";
                 statement.executeUpdate(query);
             }
         } catch (JsonProcessingException e) {
@@ -115,9 +108,9 @@ public class Database {
     }
 
     /**
-     * Doi trang thai sensor trong database co id = sensor_id, status dau vao la RUNNING hoac SUSPENDED
-     * @param sensor_id
-     * @param status
+     * Doi trang thai sensor
+     * @param sensor_id id cua sensor can thay doi trang thai
+     * @param status dau vao la RUNNING hoac SUSPENDED
      */
     public void changeSensorStatus(int sensor_id, String status) {
         try {
