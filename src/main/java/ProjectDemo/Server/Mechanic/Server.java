@@ -10,6 +10,11 @@ public class Server extends Thread {
     private Database database;
     CoapServer server;
 
+    public static void main(String[] args) {
+        Server server = new Server();
+        server.start();
+    }
+
     @Override
     public void run() {
         init();
@@ -50,6 +55,11 @@ public class Server extends Thread {
 
             exchange.respond(CoAP.ResponseCode.CREATE, getData());
             change();
+
+            String temp = "Avg temp: " + server.database.getSensorData();
+            String delay = "Avg delay: " +server.database.getDelay();
+            String throughput = "Avg throughput: " + server.database.getThroughput();
+            System.out.println(temp + "| " + delay + "| " + throughput);
         }
     }
 

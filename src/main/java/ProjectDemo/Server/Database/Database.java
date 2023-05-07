@@ -67,27 +67,47 @@ public class Database {
             ResultSet result = statement.executeQuery(query);
 
             if (!result.next()) {
-                double delay = System.currentTimeMillis() - message.getLast_time_modified();
-                double throughput = jsonMessage.length() / delay; //kbps
-                String status = "\"RUNNING\"";
+                double delay = System.nanoTime() - message.getLast_time_modified(); //nano second
+                double throughput = jsonMessage.getBytes().length * 8 / (delay / 1000); //kbps
+                String status = "RUNNING";
 
                 query = "INSERT INTO sensor(sensor_id, sensor_data, last_time_modified, sensor_status, delay, throughput)"
-                        + "VALUES(" + message.getSensor_id() + "," + message.getTemperature() + ","
-                        + message.getLast_time_modified() + "," + status + "," + delay + "," + throughput +")";
-                statement.executeUpdate(query);
+                        + "VALUES(?, ?, ?, ?, ?, ?)";
+
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, message.getSensor_id());
+                preparedStatement.setDouble(2, message.getTemperature());
+                preparedStatement.setLong(3, message.getLast_time_modified());
+                preparedStatement.setString(4, status);
+                preparedStatement.setDouble(5, delay);
+                preparedStatement.setDouble(6, throughput);
+
+                preparedStatement.executeUpdate();
             } else {
-                double preDelay = result.getDouble(5);
-                double preThroughput = result.getDouble(6);
+                double preDelay = result.getDouble("delay");
+                double preThroughput = result.getDouble("throughput");
 
                 double delay = (1 - CALCULATING_COEFFICIENT) * preDelay +
-                        CALCULATING_COEFFICIENT * (System.currentTimeMillis() - message.getLast_time_modified());
+                        CALCULATING_COEFFICIENT * (System.nanoTime() - message.getLast_time_modified());
                 double throughput = (1 - CALCULATING_COEFFICIENT) * preThroughput +
                         CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.length()) /
-                                (System.currentTimeMillis() - message.getLast_time_modified()));
+                                (System.nanoTime() - message.getLast_time_modified()));
 
-                query = "UPDATE sensor SET sensor_data=" + message.getTemperature() + ", delay=" + delay + ", "
-                        + "throughput=" + throughput + " WHERE sensor_id=" + message.getSensor_id() +";";
-                statement.executeUpdate(query);
+                query = "update sensor "
+                        + "set sensor_data =?," +
+                        "last_time_modified=?," +
+                        "delay=?," +
+                        "throughput=? " +
+                        "where sensor_id=?";
+
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setDouble(1, message.getTemperature());
+                preparedStatement.setLong(2, message.getLast_time_modified());
+                preparedStatement.setDouble(3, delay);
+                preparedStatement.setDouble(4, throughput);
+                preparedStatement.setInt(5, message.getSensor_id());
+
+                preparedStatement.executeUpdate();
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
