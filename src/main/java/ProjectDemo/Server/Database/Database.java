@@ -17,12 +17,6 @@ public class Database {
 
     public static double CALCULATING_COEFFICIENT = 0.25;
 
-    public static void main(String[] args) {
-        Database database1 = getDatabase();
-        Connection connection1 = database.getConnection();
-        database1.closeConnection();
-    }
-
     private Database() {
         try {
             connection = DriverManager.getConnection(host, admin, password);
