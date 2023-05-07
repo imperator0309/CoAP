@@ -1,23 +1,24 @@
 package ProjectDemo.SensorSimulator;
 
+import ProjectDemo.Server.Database.Database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        TemperatureSensor sensor = new TemperatureSensor(1, 5000);
-        sensor.connect("coap//localhost:5683");
+        ArrayList<TemperatureSensor> sensors = new ArrayList<>();
 
-        TemperatureSensor sensor1 = new TemperatureSensor(2, 5000);
-        sensor1.connect("coap//localhost:5683");
+        int n = 30;
 
-        TemperatureSensor sensor2 = new TemperatureSensor(3, 5000);
-        sensor2.connect("coap//localhost:5683");
         try {
-            sensor.start();
-            TimeUnit.MILLISECONDS.sleep(1500);
-            sensor1.start();
-            TimeUnit.MILLISECONDS.sleep(1500);
-            sensor2.start();
+            for (int i = 0; i < n; i++) {
+                sensors.add(new TemperatureSensor(i,5000));
+                sensors.get(i).connect("coap//localhost:5683");
+                sensors.get(i).start();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -39,7 +39,7 @@ public class DataGenerator extends Thread {
         try {
             if (isRunning()) {
                 SensorMessage message = new SensorMessage(this.sensor_id, generator.nextInt(30) + 10,
-                        System.currentTimeMillis());
+                        System.nanoTime());
                 String json = mapper.writeValueAsString(message);
                 client.post(json.getBytes());
             }
