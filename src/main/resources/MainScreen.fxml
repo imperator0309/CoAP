@@ -12,7 +12,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@layout.css" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ProjectDemo.Server.GUI.MenuController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@layout.css" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ProjectDemo.Server.GUI.MenuController">
     <tabs>
         <Tab text="Statistics">
             <content>
@@ -36,10 +36,10 @@
                         <WebView fx:id="sensorDetail" layoutY="-1.0" prefHeight="305.0" prefWidth="576.0" />
                      </children>
                   </Pane>
-                  <Button layoutX="691.0" layoutY="80.0" mnemonicParsing="false" onMouseClicked="#showSensorChart" prefHeight="38.0" prefWidth="114.0" styleClass="controlBtn" text="Live chart" />
-                  <Button layoutX="689.0" layoutY="136.0" mnemonicParsing="false" onMouseClicked="#showThroughputChart" styleClass="controlBtn" text="Throughput" />
-                  <Label layoutX="433.0" layoutY="86.0" text="Click here to view the chart:" />
-                  <Label layoutX="408.0" layoutY="142.0" text="Click here to view the throughput:" />
+                  <Button layoutX="330.0" layoutY="88.0" mnemonicParsing="false" onMouseClicked="#showSensorChart" prefHeight="42.0" prefWidth="147.0" styleClass="controlBtn" text="Num. of Sensor" />
+                  <Button layoutX="702.0" layoutY="88.0" mnemonicParsing="false" onMouseClicked="#showThroughputChart" styleClass="controlBtn" text="Throughput" />
+                  <Button layoutX="335.0" layoutY="180.0" mnemonicParsing="false" onMouseClicked="#showTemperatureChart" prefHeight="32.0" prefWidth="137.0" styleClass="controlBtn" text="Temperature" />
+                  <Button layoutX="691.0" layoutY="180.0" mnemonicParsing="false" onMouseClicked="#showDelayChart" prefHeight="32.0" prefWidth="137.0" styleClass="controlBtn" text="Delay" />
                     </children></AnchorPane>
             </content>
         </Tab>
