@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Database {
-    private final String host = "jdbc:mySQL://localhost:4306/sensor_database";
+    private final String host = "jdbc:mySQL://localhost:3306/sensor_database";
     private final String admin = "root";
     private final String password = "";
 
@@ -252,7 +252,6 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-<<<<<<< HEAD
         return delay * 1e-6;
     }
 
@@ -271,9 +270,6 @@ public class Database {
             ex.printStackTrace();
         }
         return throughput * 8 * 1e6;
-=======
-        return delay / 1000000;
->>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
     }
 
     public double getThroughput() {
@@ -288,10 +284,6 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-<<<<<<< HEAD
         return throughput * 8 * 1e6;
-=======
-        return throughput * 8000000;
->>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
     }
 }

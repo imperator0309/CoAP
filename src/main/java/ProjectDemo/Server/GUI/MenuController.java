@@ -46,11 +46,7 @@ public class MenuController {
 
     public void showSensorChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-<<<<<<< HEAD
         final NumberAxis yAxis = new NumberAxis();
-=======
-        final NumberAxis yAxis = new NumberAxis(0, 40, 1);
->>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Number of sensors");
@@ -200,11 +196,7 @@ public class MenuController {
     }
     public void showDelayChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-<<<<<<< HEAD
         final NumberAxis yAxis = new NumberAxis();
-=======
-        final NumberAxis yAxis = new NumberAxis(0, 200, 1);
->>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Delay (ms)");

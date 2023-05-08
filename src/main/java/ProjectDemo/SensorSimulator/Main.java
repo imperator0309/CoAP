@@ -1,8 +1,5 @@
 package ProjectDemo.SensorSimulator;
 
-import ProjectDemo.Message.SensorMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.ArrayList;
 
 public class Main {
