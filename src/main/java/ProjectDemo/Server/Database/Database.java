@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Database {
-    private final String host = "jdbc:mySQL://localhost:3306/sensor_database";
+    private final String host = "jdbc:mySQL://localhost:4306/sensor_database";
     private final String admin = "root";
-    private final String password = "kaiser0309";
+    private final String password = "";
 
     private Connection connection;
     private static final Database database = new Database();
