@@ -3,11 +3,9 @@ package ProjectDemo.Server.Database;
 import ProjectDemo.Message.SensorMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Database {
     private final String host = "jdbc:mySQL://localhost:4306/sensor_database";
@@ -51,6 +49,23 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getStatus(Integer sensorID) {
+        String sensorStatus = "";
+
+        try {
+            String query = "SELECT sensor_status FROM sensor WHERE sensor_id = " + sensorID + ";";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                sensorStatus = resultSet.getString(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return sensorStatus;
     }
 
     public void updateSensorValue(String jsonMessage) {
@@ -130,12 +145,30 @@ public class Database {
      */
     public void changeSensorStatus(int sensor_id, String status) {
         try {
-            String query = "UPDATE sensor SET sensor_status=" + status + "WHERE sensor_id=" + sensor_id + ";";
+            String query = "UPDATE sensor " + "SET sensor_status= " + "\'" + status + "\'"
+                    + " " + "WHERE sensor_id=" + sensor_id + ";";
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public long getLastModifiedID(Integer sensorID) {
+        long sensorLastModified = -1;
+
+        try {
+            String query = "SELECT last_time_modified FROM sensor WHERE sensor_id = " + sensorID + ";";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                sensorLastModified = resultSet.getLong(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return sensorLastModified;
     }
 
     public ArrayList<Integer> getSensorId() {
@@ -145,7 +178,7 @@ public class Database {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                sensorId.addAll(Collections.singleton(resultSet.getInt(1)));
+                sensorId.add(resultSet.getInt(1));
             }
 
         } catch (SQLException ex) {
@@ -153,6 +186,23 @@ public class Database {
         }
 
         return sensorId;
+    }
+
+    public double getDataID(Integer sensorID) {
+        double sensorData = -1;
+
+        try {
+            String query = "SELECT sensor_data FROM sensor WHERE sensor_id = " + sensorID + ";";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                sensorData = resultSet.getDouble(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return sensorData;
     }
 
     public double getSensorData() {
@@ -173,6 +223,23 @@ public class Database {
         return sensorData;
     }
 
+    public double getDelayID(Integer sensorID) {
+        double delay = -1;
+
+        try {
+            String query = "SELECT delay FROM sensor WHERE sensor_id = " + sensorID + ";";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                delay = resultSet.getDouble(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return delay * 1e-6;
+    }
+
     public double getDelay() {
         double delay = -1;
         try {
@@ -185,7 +252,28 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+<<<<<<< HEAD
+        return delay * 1e-6;
+    }
+
+    public double getThroughputID(Integer sensorID) {
+        double throughput = -1;
+
+        try {
+            String query = "SELECT throughput FROM sensor WHERE sensor_id = " + sensorID + ";";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                throughput = resultSet.getDouble(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return throughput * 8 * 1e6;
+=======
         return delay / 1000000;
+>>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
     }
 
     public double getThroughput() {
@@ -200,6 +288,10 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+<<<<<<< HEAD
+        return throughput * 8 * 1e6;
+=======
         return throughput * 8000000;
+>>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
     }
 }
