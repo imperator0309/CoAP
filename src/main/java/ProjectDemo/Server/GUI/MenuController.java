@@ -5,6 +5,7 @@ import ProjectDemo.Server.Mechanic.Server;
 import Protocol.CoapServer;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MenuController {
     @FXML
-    private ListView<String> sensorView;
+    private ListView<Integer> sensorView;
     @FXML
     private Label noteLabel;
     @FXML
@@ -82,22 +83,19 @@ public class MenuController {
         stage2.show();
 
         // this is used to display time in mm:ss format
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
 
         // set up a scheduled executor to periodically put data into the chart
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            // get a random integer between 0-10
-            Integer random = ThreadLocalRandom.current().nextInt(10);
+            ArrayList <Integer> sensorArray = database.getSensorId();
+            Integer numberOfSensor = sensorArray.size();
 
-            // Update the chart
             Platform.runLater(() -> {
-                // get current time
                 Date now = new Date();
-                // put random number with current time
                 series.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), random));
+                        new XYChart.Data<>(simpleDateFormat.format(now), numberOfSensor));
                 if (series.getData().size() > WINDOW_SIZE)
                     series.getData().remove(0);
             });
@@ -257,15 +255,39 @@ public class MenuController {
 
     }
 
+    public void updateResultLabel() {
+        if (!sensorView.getItems().isEmpty()) {
+            if (sensorView.getItems().size() > 1)
+                resultLabel.setText(sensorView.getItems().size() + " sensors activated");
+            else
+                resultLabel.setText("1 sensor activated");
+        }
+        else resultLabel.setText("No sensor activated");
+    }
+
+    public void addSensor(ObservableList<Integer> items, ArrayList<Integer> sensorList) {
+        for(int i = 0; i<sensorList.size(); i++) {
+            items.add(i, sensorList.get(i));
+        }
+    }
+
+    public void updateSensorView() {
+        ArrayList<Integer> sensorList = database.getSensorId();
+        sensorView.getItems().clear();
+        addSensor(sensorView.getItems(), sensorList);
+        sensorView.setVisible(true);
+        updateResultLabel();
+    }
+
     public void initialize() {
         try {
-             database = Database.getDatabase();
+            database = Database.getDatabase();
             Server server = new Server();
             server.start();
-            //throughputTab.setContent(FXMLLoader.load(getClass().getClassLoader().getResource("Throughput.fxml")));
             resultLabel.setText("Sensor statistics");
             noteLabel.setText("Right-click on a sensor to modify the status");
             sensorView.setVisible(false);
+            updateSensorView();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
@@ -277,7 +299,7 @@ public class MenuController {
     }
 
     public void onChangingStatus(ActionEvent mouseEvent) {
-        String currentSensor = sensorView.getSelectionModel().getSelectedItem();
+        Integer currentSensor = sensorView.getSelectionModel().getSelectedItem();
         //Nếu sensor đang bật, sử dụng alert hỏi người dùng muốn tắt nó hay không.
         //Nếu sensor đang tắt, hỏi ngược lại.
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -304,7 +326,7 @@ public class MenuController {
     }
 
     public void onClickingASensor(MouseEvent mouseEvent) {
-        String currentSensor = sensorView.getSelectionModel().getSelectedItem();
+        Integer currentSensor = sensorView.getSelectionModel().getSelectedItem();
         if (currentSensor != null) {
             sensorPane.setVisible(true);
             sensorDetail.getEngine().loadContent("Content of sensor");

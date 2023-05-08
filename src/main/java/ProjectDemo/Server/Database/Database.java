@@ -3,11 +3,15 @@ package ProjectDemo.Server.Database;
 import ProjectDemo.Message.SensorMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.collections.ObservableList;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Database {
-    private final String host = "jdbc:mySQL://localhost:4306/sensor_database";
+    //Ai dung cai dat gi thi tu sua may thong tin ve host, admin vs pass
+    private final String host = "jdbc:mySQL://localhost:3306/sensor_database";
     private final String admin = "root";
     private final String password = "";
 
@@ -60,8 +64,8 @@ public class Database {
             ResultSet result = statement.executeQuery(query);
 
             if (!result.next()) {
-                double delay = System.nanoTime() - message.getLast_time_modified();
-                double throughput = jsonMessage.getBytes().length / delay;
+                double delay = System.nanoTime() - message.getLast_time_modified(); //nano second
+                double throughput = jsonMessage.getBytes().length * 8 / (delay / 1000); //kbps
                 String status = "RUNNING";
 
                 query = "INSERT INTO sensor(sensor_id, sensor_data, last_time_modified, sensor_status, delay, throughput)"
@@ -83,7 +87,7 @@ public class Database {
                 double delay = (1 - CALCULATING_COEFFICIENT) * preDelay +
                         CALCULATING_COEFFICIENT * (System.nanoTime() - message.getLast_time_modified());
                 double throughput = (1 - CALCULATING_COEFFICIENT) * preThroughput +
-                        CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.getBytes().length) /
+                        CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.length()) /
                                 (System.nanoTime() - message.getLast_time_modified()));
 
                 query = "update sensor "
@@ -135,6 +139,23 @@ public class Database {
         }
     }
 
+    public ArrayList<Integer> getSensorId() {
+        ArrayList<Integer> sensorId = new ArrayList<>();
+        try {
+            String query = "SELECT sensor_id FROM sensor;";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                sensorId.addAll(Collections.singleton(resultSet.getInt(1)));
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return sensorId;
+    }
+
     public double getSensorData() {
         double sensorData = -1;
 
@@ -165,7 +186,7 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return delay / 1000000; //millisecond
+        return delay;
     }
 
     public double getThroughput() {
@@ -180,6 +201,6 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return throughput * 8000000; //bytes per nanosecond to kbps
+        return throughput;
     }
 }
