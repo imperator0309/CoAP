@@ -49,33 +49,31 @@ public class CoapClient {
         }
     }
 
-    public Response get() {
+    public void get() {
         try {
             Token token = new Token(new Random().nextInt(100));
             Option option = new Option(0, 11, URI.getBytes());
-            Request request = new Request(CoAP.Type.CON, CoAP.Code.GET, new Random().nextInt(100),
+            Request request = new Request(CoAP.Type.NON, CoAP.Code.GET, new Random().nextInt(100),
                     token, option, null);
 
             Exchange exchange = new Exchange(request, server);
-            return exchange.request();
+            exchange.non_request();
 
         } catch (MessageFormatException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
-    public Response post(byte[] payload) {
+    public void post(byte[] payload) {
         try {
             Token token = new Token(new Random().nextInt(100));
             Option option = new Option(0, 11, URI.getBytes());
-            Request request = new Request(CoAP.Type.CON, CoAP.Code.POST, new Random().nextInt(100),
+            Request request = new Request(CoAP.Type.NON, CoAP.Code.POST, new Random().nextInt(100),
                     token, option, payload);
             Exchange exchange = new Exchange(request, server);
-            return exchange.request();
+            exchange.non_request();
         } catch (MessageFormatException ex) {
             ex.printStackTrace();
-            return null;
         }
     }
 
