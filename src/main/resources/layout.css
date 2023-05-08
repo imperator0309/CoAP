@@ -32,6 +32,7 @@
 
 .menu-item >.label {
     -fx-font-size: 10pt;
+    -fx-font-weight: 300;
 }
 .menu-item:focused {
     -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
@@ -107,7 +108,7 @@
     -fx-background-color: #133F92;
 }
 .sensorViewPane {
-    -fx-border-color: transparent transparent #B77C1D transparent;
+    -fx-border-color: transparent transparent blue transparent;
     -fx-background-color: white;
 }
 

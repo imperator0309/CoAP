@@ -2,41 +2,29 @@ package ProjectDemo.Server.GUI;
 
 import ProjectDemo.Server.Database.Database;
 import ProjectDemo.Server.Mechanic.Server;
-import Protocol.CoapServer;
-
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
-
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-
-import javafx.scene.web.WebView;
-
-import javafx.stage.Stage;
-
-
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
-
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class MenuController {
@@ -44,6 +32,8 @@ public class MenuController {
     private ListView<Integer> sensorView;
     @FXML
     private Label noteLabel;
+    @FXML
+    private Label mainLabel;
     @FXML
     private Label resultLabel;
     @FXML
@@ -54,16 +44,20 @@ public class MenuController {
     private ScheduledExecutorService scheduledExecutorService;
     private Database database;
 
-    public void showSensorChart(MouseEvent mouseEvent) {
+    public void showSensorChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
+<<<<<<< HEAD
+        final NumberAxis yAxis = new NumberAxis();
+=======
         final NumberAxis yAxis = new NumberAxis(0, 40, 1);
+>>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Number of sensors");
         yAxis.setAnimated(false);
         yAxis.setForceZeroInRange(false);
         yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(true);
+        yAxis.setMinorTickVisible(false);
 
         final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Number of sensors active by time");
@@ -102,16 +96,16 @@ public class MenuController {
         }, 0, 4000, TimeUnit.MILLISECONDS);
     }
 
-    public void showThroughputChart(MouseEvent mouseEvent) {
+    public void showThroughputChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(0, 100, 1);
+        final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Throughput (kbps)");
         yAxis.setAnimated(false);
         yAxis.setForceZeroInRange(false);
         yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(true);
+        yAxis.setMinorTickVisible(false);
 
         final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Show Average Throughput");
@@ -155,9 +149,9 @@ public class MenuController {
 
 
     }
-    public void showTemperatureChart(MouseEvent mouseEvent) {
+    public void showTemperatureChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(10, 40, 1);
+        final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Temperature °C");
@@ -167,7 +161,7 @@ public class MenuController {
         yAxis.setMinorTickVisible(true);
 
         final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Avarage Temperature");
+        lineChart.setTitle("Show Average Temperature");
         lineChart.setAnimated(false);
 
         // defining a series to display data
@@ -204,19 +198,23 @@ public class MenuController {
             });
         }, 0, 4000, TimeUnit.MILLISECONDS);
     }
-    public void showDelayChart(MouseEvent mouseEvent) {
+    public void showDelayChart() {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
+<<<<<<< HEAD
+        final NumberAxis yAxis = new NumberAxis();
+=======
         final NumberAxis yAxis = new NumberAxis(0, 200, 1);
+>>>>>>> 28f0269562fc081e3e6604a18ab51ec42b17e097
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Delay (ms)");
         yAxis.setAnimated(false);
         yAxis.setForceZeroInRange(false);
         yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(true);
+        yAxis.setMinorTickVisible(false);
 
         final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Avarage Delay");
+        lineChart.setTitle("Show Average Delay");
         lineChart.setAnimated(false);
 
         // defining a series to display data
@@ -257,9 +255,16 @@ public class MenuController {
     }
 
     public void updateResultLabel() {
-        if (!sensorView.getItems().isEmpty()) {
-            if (sensorView.getItems().size() > 1)
-                resultLabel.setText(sensorView.getItems().size() + " sensors activated");
+        ObservableList<Integer> items = sensorView.getItems();
+        int runningSensor = 0;
+        for (Integer item : items) {
+            if (database.getStatus(item).equals("RUNNING")) {
+                runningSensor++;
+            }
+        }
+        if (runningSensor > 0) {
+            if (runningSensor > 1)
+                resultLabel.setText(runningSensor + " sensors activated");
             else
                 resultLabel.setText("1 sensor activated");
         }
@@ -274,10 +279,26 @@ public class MenuController {
 
     public void updateSensorView() {
         ArrayList<Integer> sensorList = database.getSensorId();
+        Collections.sort(sensorList);
         sensorView.getItems().clear();
         addSensor(sensorView.getItems(), sensorList);
-        sensorView.setVisible(true);
+        sensorView.setCellFactory(list -> new CellFormat());
         updateResultLabel();
+    }
+
+    private void checkSensor() {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(6), ev -> {
+            updateSensorView();
+            sensorDetail.getEngine().loadContent("<br /><br />" + "New data collected. Click a sensor to receive");
+            ArrayList<Integer> sensorList = database.getSensorId();
+            for(Integer i: sensorList) {
+                if(System.nanoTime()/1e6 - database.getLastModifiedID(i)/1e6 >= 60000) {
+                    database.removeSensor(i);
+                }
+            }
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
 
     public void initialize() {
@@ -285,10 +306,13 @@ public class MenuController {
             database = Database.getDatabase();
             Server server = new Server();
             server.start();
-            resultLabel.setText("Sensor statistics");
+            mainLabel.setText("Sensor statistics");
+            resultLabel.setText("30 sensors activated");
             noteLabel.setText("Right-click on a sensor to modify the status");
-            sensorView.setVisible(false);
+            sensorPane.setVisible(true);
+            sensorDetail.setVisible(true);
             updateSensorView();
+            checkSensor();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
@@ -299,41 +323,78 @@ public class MenuController {
         }
     }
 
-    public void onChangingStatus(ActionEvent mouseEvent) {
+    public void onChangingStatus() {
         Integer currentSensor = sensorView.getSelectionModel().getSelectedItem();
-        //Nếu sensor đang bật, sử dụng alert hỏi người dùng muốn tắt nó hay không.
-        //Nếu sensor đang tắt, hỏi ngược lại.
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Do you want to turn on this sensor?");
-        alert.setContentText("Choose your option below");
+        if(currentSensor == null) {
+            return ;
+        }
+        if(database.getStatus(currentSensor).equals("RUNNING")) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation");
+            alert.setHeaderText("Do you want to turn off this sensor?");
+            alert.setContentText("Choose your option below");
 
-        ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-        alert.getButtonTypes().setAll(yesButton, noButton);
+            ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(yesButton, noButton);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == yesButton) {
-            //Status sensor chuyển về tắt
-            //Chỉnh vị trí trong list view
-            // Show alert
-            Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
-            alert1.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-            alert1.setTitle("Information");
-            alert1.setHeaderText("Sensor off");
-            alert1.setContentText("The sensor has been disabled");
-            alert1.show();
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == yesButton) {
+                database.changeSensorStatus(currentSensor, "SUSPENDED");
+                updateSensorView();
+                // Show alert
+                Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
+                alert1.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert1.setTitle("Information");
+                alert1.setHeaderText("Sensor off");
+                alert1.setContentText("The sensor has been disabled");
+                alert1.show();
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation");
+            alert.setHeaderText("Do you want to turn on this sensor?");
+            alert.setContentText("Choose your option below");
+
+            ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(yesButton, noButton);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == yesButton) {
+                database.changeSensorStatus(currentSensor, "RUNNING");
+                updateSensorView();
+                // Show alert
+                Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
+                alert1.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert1.setTitle("Information");
+                alert1.setHeaderText("Sensor on");
+                alert1.setContentText("The sensor has been turned on successfully");
+                alert1.show();
+            }
         }
     }
 
-    public void onClickingASensor(MouseEvent mouseEvent) {
+    private String sensorContent(Integer currentSensor) {
+        DecimalFormat df = new DecimalFormat("#.##");
+        double roundedThroughput = Double.parseDouble(df.format(database.getThroughputID(currentSensor)));
+        double roundedDelay = Double.parseDouble(df.format(database.getDelayID(currentSensor)));
+        String tempStatus = "The temperature measured by this sensor is " + database.getDataID(currentSensor) + " ℃";
+        String throughputStatus = "The throughput measured by this sensor is " + roundedThroughput + " kbps";
+        String delayStatus = "The delay measured by this sensor is " + roundedDelay + " ms";
+        return tempStatus + "<br /><br />"  + throughputStatus + "<br /><br />" + delayStatus;
+    }
+
+    public void onClickingASensor() {
         Integer currentSensor = sensorView.getSelectionModel().getSelectedItem();
         if (currentSensor != null) {
-            sensorPane.setVisible(true);
-            sensorDetail.getEngine().loadContent("Content of sensor");
+            if(database.getStatus(currentSensor).equals("RUNNING"))
+                sensorDetail.getEngine().loadContent("<br /><br />" + sensorContent(currentSensor));
+            else
+                sensorDetail.getEngine().loadContent("<br /><br />" + "Sensor disabled");
         } else {
-            sensorDetail.getEngine().loadContent("No sensor clicked");
-            sensorPane.setVisible(false);
+            sensorDetail.getEngine().loadContent("<br /><br />" + "No sensor clicked");
+            //sensorPane.setVisible(false);
         }
     }
 }
