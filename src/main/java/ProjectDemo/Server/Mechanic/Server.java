@@ -10,11 +10,6 @@ public class Server extends Thread {
     private Database database;
     CoapServer server;
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
-    }
-
     @Override
     public void run() {
         init();

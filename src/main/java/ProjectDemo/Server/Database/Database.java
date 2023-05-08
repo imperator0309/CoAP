@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Database {
-    //Ai dung cai dat gi thi tu sua may thong tin ve host, admin vs pass
     private final String host = "jdbc:mySQL://localhost:3306/sensor_database";
     private final String admin = "root";
-    private final String password = "";
+    private final String password = "kaiser0309";
 
     private Connection connection;
     private static final Database database = new Database();
@@ -65,7 +64,7 @@ public class Database {
 
             if (!result.next()) {
                 double delay = System.nanoTime() - message.getLast_time_modified(); //nano second
-                double throughput = jsonMessage.getBytes().length * 8 / (delay / 1000); //kbps
+                double throughput = jsonMessage.getBytes().length / delay; //kbps
                 String status = "RUNNING";
 
                 query = "INSERT INTO sensor(sensor_id, sensor_data, last_time_modified, sensor_status, delay, throughput)"
@@ -125,9 +124,9 @@ public class Database {
     }
 
     /**
-     * Doi trang thai sensor
-     * @param sensor_id id cua sensor can thay doi trang thai
-     * @param status dau vao la RUNNING hoac SUSPENDED
+     * Change sensor status
+     * @param sensor_id the id of the sensor need to be changed status
+     * @param status gets values RUNNING or SUSPENDED
      */
     public void changeSensorStatus(int sensor_id, String status) {
         try {
@@ -186,7 +185,7 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return delay;
+        return delay / 1000000;
     }
 
     public double getThroughput() {
@@ -201,6 +200,6 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return throughput;
+        return throughput * 8000000;
     }
 }

@@ -52,7 +52,9 @@ public class CoapResource implements Resource {
      * @param exchange
      */
     public void handleGET(Exchange exchange) {
-        exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
+        if (exchange.getRequest().getType() == CoAP.Type.CON) {
+            exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
+        }
     }
 
     /**
@@ -60,7 +62,9 @@ public class CoapResource implements Resource {
      * @param exchange
      */
     public void handlePOST(Exchange exchange) {
-        exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
+        if (exchange.getRequest().getType() == CoAP.Type.CON) {
+            exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
+        }
     }
 
     /**
