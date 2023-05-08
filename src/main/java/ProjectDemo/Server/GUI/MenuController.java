@@ -138,7 +138,8 @@ public class MenuController {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            double avgThroughput = database.getThroughput();
+            double avgThroughput = database.getThroughput()*1e6;
+
 
             // Update the chart
             Platform.runLater(() -> {
@@ -205,7 +206,7 @@ public class MenuController {
     }
     public void showDelayChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(0, 100, 0.5);
+        final NumberAxis yAxis = new NumberAxis(0, 200, 1);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Delay (ms)");
@@ -239,7 +240,7 @@ public class MenuController {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            double avgDelay = database.getDelay();
+            double avgDelay = database.getDelay()*1e-6;
 
             // Update the chart
             Platform.runLater(() -> {
