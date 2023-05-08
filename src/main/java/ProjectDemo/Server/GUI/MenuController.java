@@ -1,5 +1,7 @@
 package ProjectDemo.Server.GUI;
 
+import ProjectDemo.Server.Database.Database;
+import ProjectDemo.Server.Mechanic.Server;
 import Protocol.CoapServer;
 
 import javafx.application.Platform;
@@ -28,6 +30,7 @@ import javafx.scene.chart.XYChart;
 
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -48,6 +51,7 @@ public class MenuController {
     private Pane sensorPane;
     final int WINDOW_SIZE = 10;
     private ScheduledExecutorService scheduledExecutorService;
+    private Database database;
 
     public void showSensorChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
@@ -101,14 +105,163 @@ public class MenuController {
     }
 
     public void showThroughputChart(MouseEvent mouseEvent) {
+        final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
+        final NumberAxis yAxis = new NumberAxis(0, 20, 1);
+        xAxis.setLabel("Time");
+        xAxis.setAnimated(false);
+        yAxis.setLabel("Average Throughput (kbps)");
+        yAxis.setAnimated(false);
+        yAxis.setForceZeroInRange(false);
+        yAxis.setTickLabelsVisible(true);
+        yAxis.setMinorTickVisible(true);
+
+        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Show Average Throughput");
+        lineChart.setAnimated(false);
+
+        // defining a series to display data
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Average throughput");
+
+        // add series to chart
+        lineChart.getData().add(series);
+        lineChart.setPrefSize(600, 400);
+        Stage stage2 = new Stage();
+        stage2.setTitle("Sensor chart");
+        Scene scene = new Scene(lineChart);
+        stage2.setScene(scene);
+        stage2.show();
+
+        // this is used to display time in mm:ss format
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+
+        // set up a scheduled executor to periodically put data into the chart
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            double avgThroughput = database.getThroughput()*1e6;
+
+            // Update the chart
+            Platform.runLater(() -> {
+                // get current time
+                Date now = new Date();
+                // put random number with current time
+                series.getData().add(
+                        new XYChart.Data<>(simpleDateFormat.format(now), avgThroughput));
+                if (series.getData().size() > WINDOW_SIZE)
+                    series.getData().remove(0);
+            });
+        }, 0, 4000, TimeUnit.MILLISECONDS);
+
+
+    }
+    public void showTemperatureChart(MouseEvent mouseEvent) {
+        final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
+        final NumberAxis yAxis = new NumberAxis(15, 30, 0.5);
+        xAxis.setLabel("Time");
+        xAxis.setAnimated(false);
+        yAxis.setLabel("Average Temperature °C");
+        yAxis.setAnimated(false);
+        yAxis.setForceZeroInRange(false);
+        yAxis.setTickLabelsVisible(true);
+        yAxis.setMinorTickVisible(true);
+
+        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Show Avarage Temperature");
+        lineChart.setAnimated(false);
+
+        // defining a series to display data
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Average Temperature");
+
+        // add series to chart
+        lineChart.getData().add(series);
+        lineChart.setPrefSize(600, 400);
+        Stage stage2 = new Stage();
+        stage2.setTitle("Sensor chart");
+        Scene scene = new Scene(lineChart);
+        stage2.setScene(scene);
+        stage2.show();
+
+        // this is used to display time in mm:ss format
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+
+        // set up a scheduled executor to periodically put data into the chart
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            double avgTemp = database.getSensorData();
+
+            // Update the chart
+            Platform.runLater(() -> {
+                // get current time
+                Date now = new Date();
+                // put random number with current time
+                series.getData().add(
+                        new XYChart.Data<>(simpleDateFormat.format(now), avgTemp));
+                if (series.getData().size() > WINDOW_SIZE)
+                    series.getData().remove(0);
+            });
+        }, 0, 4000, TimeUnit.MILLISECONDS);
+    }
+    public void showDelayChart(MouseEvent mouseEvent) {
+        final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
+        final NumberAxis yAxis = new NumberAxis(15, 30, 0.5);
+        xAxis.setLabel("Time");
+        xAxis.setAnimated(false);
+        yAxis.setLabel("Average Delay (ms)");
+        yAxis.setAnimated(false);
+        yAxis.setForceZeroInRange(false);
+        yAxis.setTickLabelsVisible(true);
+        yAxis.setMinorTickVisible(true);
+
+        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Show Avarage Temperature");
+        lineChart.setAnimated(false);
+
+        // defining a series to display data
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Average Temperature");
+
+        // add series to chart
+        lineChart.getData().add(series);
+        lineChart.setPrefSize(600, 400);
+        Stage stage2 = new Stage();
+        stage2.setTitle("Sensor chart");
+        Scene scene = new Scene(lineChart);
+        stage2.setScene(scene);
+        stage2.show();
+
+        // this is used to display time in mm:ss format
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+
+        // set up a scheduled executor to periodically put data into the chart
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            double avgTemp = database.getSensorData();
+
+            // Update the chart
+            Platform.runLater(() -> {
+                // get current time
+                Date now = new Date();
+                // put random number with current time
+                series.getData().add(
+                        new XYChart.Data<>(simpleDateFormat.format(now), avgTemp));
+                if (series.getData().size() > WINDOW_SIZE)
+                    series.getData().remove(0);
+            });
+        }, 0, 4000, TimeUnit.MILLISECONDS);
 
     }
 
     public void initialize() {
         try {
-            CoapServer server = new CoapServer();
-            server.add(new Main.TemperatureResource());
-            server.add(new Main.CommandResource());
+             database = Database.getDatabase();
+            Server server = new Server();
             server.start();
             //throughputTab.setContent(FXMLLoader.load(getClass().getClassLoader().getResource("Throughput.fxml")));
             resultLabel.setText("Sensor statistics");

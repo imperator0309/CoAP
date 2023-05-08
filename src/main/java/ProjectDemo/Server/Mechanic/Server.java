@@ -56,10 +56,7 @@ public class Server extends Thread {
             exchange.respond(CoAP.ResponseCode.CREATE, getData());
             change();
 
-            String temp = "Avg temp: " + server.database.getSensorData();
-            String delay = "Avg delay: " +server.database.getDelay();
-            String throughput = "Avg throughput: " + server.database.getThroughput();
-            System.out.println(temp + "| " + delay + "| " + throughput);
+
         }
     }
 
