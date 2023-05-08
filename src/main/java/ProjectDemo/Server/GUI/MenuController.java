@@ -106,7 +106,7 @@ public class MenuController {
 
     public void showThroughputChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(0, 20, 1);
+        final NumberAxis yAxis = new NumberAxis(0, 100, 1);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Throughput (kbps)");
@@ -140,7 +140,7 @@ public class MenuController {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            double avgThroughput = database.getThroughput()*1e6;
+            double avgThroughput = database.getThroughput();
 
             // Update the chart
             Platform.runLater(() -> {
@@ -158,7 +158,7 @@ public class MenuController {
     }
     public void showTemperatureChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(15, 30, 0.5);
+        final NumberAxis yAxis = new NumberAxis(10, 40, 1);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Temperature °C");
@@ -207,7 +207,7 @@ public class MenuController {
     }
     public void showDelayChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(15, 30, 0.5);
+        final NumberAxis yAxis = new NumberAxis(0, 100, 0.5);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Delay (ms)");
@@ -217,18 +217,18 @@ public class MenuController {
         yAxis.setMinorTickVisible(true);
 
         final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Avarage Temperature");
+        lineChart.setTitle("Show Avarage Delay");
         lineChart.setAnimated(false);
 
         // defining a series to display data
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Average Temperature");
+        series.setName("Average Delay");
 
         // add series to chart
         lineChart.getData().add(series);
         lineChart.setPrefSize(600, 400);
         Stage stage2 = new Stage();
-        stage2.setTitle("Sensor chart");
+        stage2.setTitle("Delay Chart");
         Scene scene = new Scene(lineChart);
         stage2.setScene(scene);
         stage2.show();
@@ -241,7 +241,7 @@ public class MenuController {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            double avgTemp = database.getSensorData();
+            double avgDelay = database.getDelay();
 
             // Update the chart
             Platform.runLater(() -> {
@@ -249,7 +249,7 @@ public class MenuController {
                 Date now = new Date();
                 // put random number with current time
                 series.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), avgTemp));
+                        new XYChart.Data<>(simpleDateFormat.format(now), avgDelay));
                 if (series.getData().size() > WINDOW_SIZE)
                     series.getData().remove(0);
             });

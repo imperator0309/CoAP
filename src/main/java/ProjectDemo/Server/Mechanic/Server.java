@@ -53,8 +53,11 @@ public class Server extends Thread {
 <<<<<<< HEAD
 
 
+<<<<<<< HEAD
 =======
 >>>>>>> 32ec4f0 (fix sensor data measurements)
+=======
+>>>>>>> d793386 (add charts)
         }
     }
 
