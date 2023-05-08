@@ -1,11 +1,9 @@
 package ProjectDemo.SensorSimulator;
 
-import ProjectDemo.Server.Database.Database;
+import ProjectDemo.Message.SensorMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
