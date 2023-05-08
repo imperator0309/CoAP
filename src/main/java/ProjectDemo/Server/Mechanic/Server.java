@@ -10,11 +10,6 @@ public class Server extends Thread {
     private Database database;
     CoapServer server;
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
-    }
-
     @Override
     public void run() {
         init();
@@ -55,8 +50,11 @@ public class Server extends Thread {
 
             exchange.respond(CoAP.ResponseCode.CREATE, getData());
             change();
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 32ec4f0 (fix sensor data measurements)
         }
     }
 

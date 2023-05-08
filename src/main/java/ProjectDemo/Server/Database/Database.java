@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.*;
 
 public class Database {
-    //Ai dung cai dat gi thi tu sua may thong tin ve host, admin vs pass
     private final String host = "jdbc:mySQL://localhost:3306/sensor_database";
     private final String admin = "root";
     private final String password = "kaiser0309";
@@ -61,8 +60,8 @@ public class Database {
             ResultSet result = statement.executeQuery(query);
 
             if (!result.next()) {
-                double delay = System.nanoTime() - message.getLast_time_modified(); //nano second
-                double throughput = jsonMessage.getBytes().length * 8 / (delay / 1000); //kbps
+                double delay = System.nanoTime() - message.getLast_time_modified();
+                double throughput = jsonMessage.getBytes().length / delay;
                 String status = "RUNNING";
 
                 query = "INSERT INTO sensor(sensor_id, sensor_data, last_time_modified, sensor_status, delay, throughput)"
@@ -84,7 +83,7 @@ public class Database {
                 double delay = (1 - CALCULATING_COEFFICIENT) * preDelay +
                         CALCULATING_COEFFICIENT * (System.nanoTime() - message.getLast_time_modified());
                 double throughput = (1 - CALCULATING_COEFFICIENT) * preThroughput +
-                        CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.length()) /
+                        CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.getBytes().length) /
                                 (System.nanoTime() - message.getLast_time_modified()));
 
                 query = "update sensor "
@@ -166,7 +165,7 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return delay;
+        return delay / 1000000; //millisecond
     }
 
     public double getThroughput() {
@@ -181,6 +180,6 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return throughput;
+        return throughput * 8000000; //bytes per nanosecond to kbps
     }
 }
