@@ -56,7 +56,7 @@ public class MenuController {
 
     public void showSensorChart(MouseEvent mouseEvent) {
         final CategoryAxis xAxis = new CategoryAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis(0, 20, 1);
+        final NumberAxis yAxis = new NumberAxis(0, 40, 1);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Number of sensors");
