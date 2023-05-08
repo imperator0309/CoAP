@@ -191,7 +191,6 @@ public class MenuController {
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            // get a random integer between 0-10
             double avgTemp = database.getSensorData();
 
             // Update the chart
