@@ -17,7 +17,11 @@ public class CellFormat extends ListCell<Integer> {
             setText(str);
             setFont(Font.font("System", FontWeight.BOLD, 25));
             setAlignment(Pos.BASELINE_CENTER);
-            setTextFill(database.getStatus(item).equals("RUNNING") ? Color.GREEN : Color.GRAY);
+            setTextFill(database.getStatus(item).equals("RUNNING") ? Color.GREEN : Color.ORANGERED);
+        }
+        else {
+            setGraphic(null);
+            setTextFill(Color.TRANSPARENT);
         }
     }
 }
