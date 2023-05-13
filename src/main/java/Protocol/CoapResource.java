@@ -9,7 +9,7 @@ public class CoapResource implements Resource {
     private Resource parent;
     private final HashMap<String, Resource> children = new HashMap<>();
     private boolean observable;
-    private HashSet<Endpoint> observers = new HashSet<>();
+    private final HashSet<Endpoint> observers = new HashSet<>();
     private byte[] data;
 
     protected CoapResource(String name) {
@@ -41,30 +41,17 @@ public class CoapResource implements Resource {
                     handleGET(exchange);
                 }
             }
-            case POST -> {
-                handlePOST(exchange);
-            }
+            case POST ->
+                    handlePOST(exchange);
         }
     }
 
-    /**
-     * handle GET request from client.
-     * @param exchange
-     */
     public void handleGET(Exchange exchange) {
-        if (exchange.getRequest().getType() == CoAP.Type.CON) {
-            exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
-        }
+        exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
     }
 
-    /**
-     * handle POST request from client
-     * @param exchange
-     */
     public void handlePOST(Exchange exchange) {
-        if (exchange.getRequest().getType() == CoAP.Type.CON) {
-            exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
-        }
+        exchange.respond(CoAP.ResponseCode.METHOD_NOT_ALLOWED, null);
     }
 
     /**
@@ -77,10 +64,6 @@ public class CoapResource implements Resource {
             Exchange exchange = new Exchange(response, observer);
             exchange.respond(CoAP.ResponseCode.CREATE, data);
         }
-    }
-
-    public void addObserver(Endpoint endpoint) {
-        observers.add(endpoint);
     }
 
     @Override
@@ -164,7 +147,7 @@ public class CoapResource implements Resource {
     public boolean equals(Object obj) {
         if (! (obj instanceof Resource))
             return false;
-        Resource resource = (Resource) obj;
-        return name.equals(resource.getName());
+
+        return name.equals(((Resource) obj).getName());
     }
 }

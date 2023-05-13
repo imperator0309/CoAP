@@ -20,7 +20,7 @@ public class Response extends Message {
     }
 
     public Response(CoAP.Type type, CoAP.ResponseCode code, int mid, Token token, Option option, byte[] payload) {
-        int tkl = 0;
+        int tkl;
         if (token == null || token.getTokenBytes() == null) {
             tkl = 0;
         } else {
@@ -39,6 +39,7 @@ public class Response extends Message {
     public Response(byte[] data) {
         try {
             int firstByte= data[0];
+            int version = (firstByte >> 6) & 0b00000011;
             int typeCode = (firstByte >> 4) & 0b00000011;
             int tkl = (firstByte & 0b00001111);
 
@@ -71,6 +72,7 @@ public class Response extends Message {
             CoAP.ResponseCode code = CoAP.ResponseCode.valueOf(codeByte);
             Token token = new Token();
 
+            setVersion(version);
             setType(type);
             setTKL(tkl);
             setCode(code);
@@ -106,21 +108,16 @@ public class Response extends Message {
 
         int type;
         switch (this.getType()) {
-            case CON -> {
-                type = 0;
-            }
-            case NON -> {
-                type = 1;
-            }
-            case ACK -> {
-                type = 2;
-            }
-            case RST -> {
-                type = 3;
-            }
-            default -> {
-                throw new MessageFormatException("Unknown Message Type");
-            }
+            case CON ->
+                    type = 0;
+            case NON ->
+                    type = 1;
+            case ACK ->
+                    type = 2;
+            case RST ->
+                    type = 3;
+            default ->
+                    throw new MessageFormatException("Unknown Message Type");
         }
 
         byte[] defaultHeader = new byte[4];

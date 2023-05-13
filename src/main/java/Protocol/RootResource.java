@@ -3,8 +3,7 @@ package Protocol;
 import java.util.HashMap;
 
 public final class RootResource implements Resource{
-    private String name;
-    private Resource parent;
+    private final String name;
     private final HashMap<String, Resource> children = new HashMap<>();
 
     private static final RootResource root = new RootResource("/");

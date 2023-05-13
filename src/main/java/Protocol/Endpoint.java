@@ -6,10 +6,6 @@ public class Endpoint {
     private InetAddress address;
     private int port;
 
-    public Endpoint() {
-
-    }
-
     public Endpoint(InetAddress address, int port) {
         this.address = address;
         this.port = port;
@@ -36,8 +32,8 @@ public class Endpoint {
         if (! (obj instanceof Endpoint))
             return false;
 
-        Endpoint endpoint = (Endpoint) obj;
-        return ((this.address.getHostName().equals(endpoint.getAddress().getHostName())) && port == endpoint.getPort());
+        return (this.address.getHostName().equals(((Endpoint) obj).getAddress().getHostName())
+                && port == ((Endpoint)obj).getPort());
     }
 
     @Override

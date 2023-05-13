@@ -11,15 +11,16 @@ import java.util.Random;
 import CoAPException.*;
 public class ObserveHandler extends Thread{
     private CoapClient client;
-    private String URI;
+    private String resourcePath;
     private Response response;
     private DatagramSocket datagramSocket;
     private boolean observing;
+    private boolean cancelled;
 
     public ObserveHandler(CoapClient client) {
         try {
             this.client = client;
-            URI = client.getURI();
+            resourcePath = client.getResourcePath();
             datagramSocket = new DatagramSocket();
         } catch (SocketException e) {
             System.err.println("Cannot Create Observation Handler");
@@ -30,9 +31,9 @@ public class ObserveHandler extends Thread{
     @Override
     public void run() {
         try {
-            boolean ack = onLoad();
+            boolean ack = register();
             while (!ack) {
-                ack = onLoad();
+                ack = register();
             }
 
             while (observing) {
@@ -43,9 +44,9 @@ public class ObserveHandler extends Thread{
         }
     }
 
-    public boolean onLoad() throws CoapClientException {
+    public boolean register() throws CoapClientException {
         try {
-            Option option = new Option(0, 6, URI.getBytes());
+            Option option = new Option(0, 6, resourcePath.getBytes());
             Request request = new Request(CoAP.Type.CON, CoAP.Code.GET,
                     new Random().nextInt(100), null, option, null);
             byte[] buffer = request.toByteArray();
@@ -61,11 +62,12 @@ public class ObserveHandler extends Thread{
 
             buffer = new byte[ackPkt.getLength()];
             ByteArrayInputStream reader = new ByteArrayInputStream(ackPkt.getData(), 0, ackPkt.getLength());
-            reader.read(buffer, 0, buffer.length);
+            int n = reader.read(buffer, 0, buffer.length);
+
+            if (n == -1)
+                return false;
 
             Response response = new Response(buffer);
-            if (response == null)
-                return false;
 
             if (response.getType() == CoAP.Type.ACK && response.getCode() == CoAP.ResponseCode.CONTENT) {
                 datagramSocket.setSoTimeout(0);
@@ -95,20 +97,26 @@ public class ObserveHandler extends Thread{
             datagramSocket.receive(packet);
             ByteArrayInputStream reader = new ByteArrayInputStream(packet.getData(), 0, packet.getLength());
 
-            buffer = new byte[packet.getLength()];
-            reader.read(buffer, 0, buffer.length);
-            response = new Response(buffer);
+            if (cancelled) {
+                try {
+                    Option option = new Option(0, 6, client.getResourcePath().getBytes());
+                    Request request = new Request(CoAP.Type.RST, CoAP.Code.GET, new Random().nextInt(100),
+                            null, option, null);
+                    DatagramPacket cancelPacket = new DatagramPacket(request.toByteArray(), 0,
+                            request.toByteArray().length, client.getServer().getAddress(), client.getServer().getPort());
+                    datagramSocket.send(cancelPacket);
+                } catch (MessageFormatException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                buffer = new byte[packet.getLength()];
+                int n = reader.read(buffer, 0, buffer.length);
+                if (n != -1)
+                    response = new Response(buffer);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public String getURI() {
-        return URI;
-    }
-
-    public void setURI(String URI) {
-        this.URI = URI;
     }
 
     public DatagramSocket getDatagramSocket() {
@@ -129,5 +137,13 @@ public class ObserveHandler extends Thread{
 
     public void setObserving(boolean observing) {
         this.observing = observing;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }

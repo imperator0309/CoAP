@@ -11,31 +11,18 @@ public class CoapClient {
     private String host;
     private int port;
     private Endpoint server;
-    private String URI;
+    private String resourcePath;
     private ObserveHandler observeHandler;
 
     public CoapClient(String url) throws CoapClientException {
         this.url = url;
         try {
-            String host = getHostName(url);
-            int port = getPort(url);
+            host = getHostAddress(url);
 
-            if (host == null || port == -1) {
+            decodeLink();
+
+            if (host == null || port == -1 || resourcePath == null)
                 throw new CoapClientException("Invalid URL");
-            }
-
-            this.host = host;
-            this.port = port;
-
-            int resourceIndex = url.indexOf(":");
-            for (int i = resourceIndex + 1; i < url.length(); i++) {
-                if (url.charAt(i) == '/') {
-                    resourceIndex = i;
-                    break;
-                }
-            }
-
-            this.URI = url.substring(resourceIndex);
 
             try {
                 InetAddress serverAddress = InetAddress.getByName(host);
@@ -49,31 +36,33 @@ public class CoapClient {
         }
     }
 
-    public void get() {
+    public Response get() {
         try {
             Token token = new Token(new Random().nextInt(100));
-            Option option = new Option(0, 11, URI.getBytes());
+            Option option = new Option(0, 11, resourcePath.getBytes());
             Request request = new Request(CoAP.Type.NON, CoAP.Code.GET, new Random().nextInt(100),
                     token, option, null);
 
             Exchange exchange = new Exchange(request, server);
-            exchange.non_request();
+            return exchange.request();
 
         } catch (MessageFormatException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
-    public void post(byte[] payload) {
+    public Response post(byte[] payload) {
         try {
             Token token = new Token(new Random().nextInt(100));
-            Option option = new Option(0, 11, URI.getBytes());
+            Option option = new Option(0, 11, resourcePath.getBytes());
             Request request = new Request(CoAP.Type.NON, CoAP.Code.POST, new Random().nextInt(100),
                     token, option, payload);
             Exchange exchange = new Exchange(request, server);
-            exchange.non_request();
+            return exchange.request();
         } catch (MessageFormatException ex) {
             ex.printStackTrace();
+            return null;
         }
     }
 
@@ -85,6 +74,7 @@ public class CoapClient {
             throw new CoapClientException("Observing Handler Cannot be Null");
         } else {
             observeHandler.setObserving(true);
+            observeHandler.setCancelled(false);
             observeHandler.start();
         }
     }
@@ -92,53 +82,63 @@ public class CoapClient {
     /**
      * cancel observing a resource
      */
-    public synchronized void cancelObserving() {
-        try {
-            Option option = new Option(0, 6, URI.getBytes());
-            Request request = new Request(CoAP.Type.RST, CoAP.Code.GET, new Random().nextInt(100),
-                    null, option, null);
-            Exchange exchange = new Exchange(request, server);
-            exchange.non_request();
+    public void cancelObserving() {
+        observeHandler.setCancelled(true);
+    }
 
-            observeHandler.setObserving(false);
-        } catch (MessageFormatException e) {
-            e.printStackTrace();
+    private void decodeLink() {
+        host = getHostAddress(url);
+
+        if (host != null) {
+            int postIndex = url.indexOf(host) + host.length();
+
+            String tmp = url.substring(postIndex);
+            port = getPort(tmp);
+
+            if (port != -1) {
+                resourcePath = tmp.substring(CoAP.PORT_SCHEME_SEPARATOR.length() + (port + "").length());
+            } else {
+                resourcePath = null;
+            }
+        } else {
+            port = -1;
+            resourcePath = null;
         }
     }
 
-    private String getHostName(String url) {
-        int separator = url.indexOf(CoAP.PROTOCOL_SCHEME_SEPARATOR);
-        if (separator == -1)
+    private String getHostAddress(String url) {
+
+        if (url.length() < CoAP.PROTOCOL_SCHEME.length() + CoAP.PROTOCOL_SCHEME_SEPARATOR.length())
             return null;
 
-        int portIndex = -1;
-        for (int i = separator + 2; i < url.length(); i++) {
-            if (url.charAt(i) == ':') {
-                portIndex = i;
-                break;
-            }
-        }
+        String protocolCheck = url.substring(0, CoAP.PROTOCOL_SCHEME.length() + CoAP.PROTOCOL_SCHEME_SEPARATOR.length());
+
+        if (!protocolCheck.equals(CoAP.PROTOCOL_SCHEME + CoAP.PROTOCOL_SCHEME_SEPARATOR))
+            return null;
+
+        String tmp = url.substring(protocolCheck.length());
+
+        int portIndex = tmp.indexOf(CoAP.PORT_SCHEME_SEPARATOR);
         if (portIndex == -1)
             return null;
 
-        return url.substring(separator + 2, portIndex);
+        return tmp.substring(0, portIndex);
     }
 
     private int getPort(String url) {
-        int indexPort = url.indexOf(":");
-        if (indexPort == -1)
+        if (url.charAt(0) != ':')
             return -1;
-        int uri_index = -1;
-        for (int i = indexPort + 1; i < url.length(); i++) {
-            if (url.charAt(i) == '/') {
-                uri_index = i;
-                break;
-            }
+
+        int port;
+        try {
+            String tmp = url.substring(1, url.indexOf(CoAP.SCHEME_SEPARATOR));
+            port = Integer.parseInt(tmp);
+        } catch (NumberFormatException ex) {
+            return -1;
+        } catch (IndexOutOfBoundsException e) {
+            return -1;
         }
-        if (uri_index == -1)
-            return -1;
-        String tmp = url.substring(indexPort + 1, uri_index);
-        return Integer.parseInt(tmp);
+        return port;
     }
 
     public String getHost() {
@@ -173,12 +173,12 @@ public class CoapClient {
         this.url = url;
     }
 
-    public String getURI() {
-        return URI;
+    public String getResourcePath() {
+        return resourcePath;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setResourcePath(String resourcePath) {
+        this.resourcePath = resourcePath;
     }
 
     public ObserveHandler getObserveHandler() {

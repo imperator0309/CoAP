@@ -20,11 +20,11 @@ public class Server extends Thread {
         database = Database.getDatabase();
         server = new CoapServer();
         server.add(new TemperatureResource(this));
-        server.add(new CommandResource(this));
+        server.add(new CommandResource());
     }
 
     static class TemperatureResource extends CoapResource {
-        private Server server;
+        private final Server server;
         public TemperatureResource(Server server) {
             super("temperature");
             setObservable(true);
@@ -54,12 +54,9 @@ public class Server extends Thread {
     }
 
     public static class CommandResource extends CoapResource {
-        private Server server;
-        public CommandResource(Server server) {
+        public CommandResource() {
             super("command");
             setObservable(true);
-
-            this.server = server;
         }
 
         @Override

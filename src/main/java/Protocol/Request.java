@@ -29,6 +29,7 @@ public class Request extends Message {
     public Request(byte[] data) {
         try {
             int firstByte= data[0];
+            int version = (firstByte >> 6) & 0b00000011;
             int typeCode = (firstByte >> 4) & 0b00000011;
             int tkl = (firstByte & 0b00001111);
 
@@ -58,6 +59,7 @@ public class Request extends Message {
             Option option = new Option(0, delta, optionValue);
             Token token = new Token();
 
+            setVersion(version);
             setType(type);
             setTKL(tkl);
             setCode(method);
@@ -90,23 +92,18 @@ public class Request extends Message {
     }
 
     public byte[] toByteArray() throws MessageFormatException{
-        int type = 0;
+        int type;
         switch (this.getType()) {
-            case CON -> {
-                type = 0;
-            }
-            case NON -> {
-                type = 1;
-            }
-            case ACK -> {
-                type = 2;
-            }
-            case RST -> {
-                type = 3;
-            }
-            default -> {
-                throw new MessageFormatException("Unknown Message Type");
-            }
+            case CON ->
+                    type = 0;
+            case NON ->
+                    type = 1;
+            case ACK ->
+                    type = 2;
+            case RST ->
+                    type = 3;
+            default ->
+                    throw new MessageFormatException("Unknown Message Type");
         }
 
         byte firstByte = (byte) ((CoAP.VERSION << 6) | (type << 4) | (this.getTKL() & 0b00001111));

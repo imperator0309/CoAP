@@ -6,8 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Socket;
-import java.net.SocketException;
 
 public class Exchange {
     private Endpoint endpoint;
@@ -50,28 +48,12 @@ public class Exchange {
         }
     }
 
-    public void non_request() {
-        DatagramSocket datagramSocket = null;
-        try {
-            datagramSocket = new DatagramSocket();
-            byte[] data = request.toByteArray();
-            DatagramPacket packet = new DatagramPacket(data, 0, data.length,
-                    endpoint.getAddress(), endpoint.getPort());
-
-            datagramSocket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (MessageFormatException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public Response request() {
-        Response response = null;
+        Response response;
         DatagramSocket datagramSocket = null;
         try {
             datagramSocket = new DatagramSocket();
-            datagramSocket.setSoTimeout(5000);
+            datagramSocket.setSoTimeout(3000);
 
             byte[] data = request.toByteArray();
             DatagramPacket outPkt = new DatagramPacket(data, 0, data.length,
@@ -85,17 +67,21 @@ public class Exchange {
 
             ByteArrayInputStream reader = new ByteArrayInputStream(inPkt.getData(), 0, inPkt.getLength());
             byte[] receiver = new byte[inPkt.getLength()];
-            reader.read(receiver, 0, receiver.length);
+            int n = reader.read(receiver, 0, receiver.length);
 
-            if (receiver != null) {
+            if (n == -1) {
+                response = null;
+            } else {
                 response = new Response(receiver);
             }
 
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         } catch (MessageFormatException e) {
             e.printStackTrace();
+            return null;
         } finally {
             if (datagramSocket != null) {
                 datagramSocket.close();
