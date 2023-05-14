@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketTimeoutException;
 
 public class Exchange {
     private Endpoint endpoint;
@@ -76,6 +77,8 @@ public class Exchange {
             }
 
             reader.close();
+        }catch (SocketTimeoutException e) {
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
