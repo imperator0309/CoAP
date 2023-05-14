@@ -134,12 +134,13 @@ public class Database {
         try {
             String query = "DELETE " +
                     "FROM sensor " +
-                    "WHERE last_time_modified < ?";
+                    "WHERE last_time_modified < ? AND sensor_status = ?";
 
             double checkSensorTimeOut = 6 * 1e9;
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setDouble(1, System.nanoTime() - checkSensorTimeOut);
+            preparedStatement.setString(2, "RUNNING");
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
