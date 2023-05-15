@@ -13,9 +13,9 @@ public class CellFormat extends ListCell<Integer> {
     protected void updateItem(Integer item, boolean empty) {
         super.updateItem(item, empty);
         if(item != null) {
-            String str = Integer.toString(item);
-            setText(str);
-            setFont(Font.font("System", FontWeight.BOLD, 25));
+            String str = Integer.toString(item + 1);
+            setText("Sensor " + str);
+            setFont(Font.font("System", FontWeight.BOLD, 20));
             setAlignment(Pos.BASELINE_CENTER);
             setTextFill(database.getStatus(item).equals("RUNNING") ? Color.GREEN : Color.ORANGERED);
         }

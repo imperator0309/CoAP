@@ -163,6 +163,17 @@ public class Database {
         }
     }
 
+    public void clearDatabase() {
+        try {
+            String query = "DELETE FROM sensor";
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public long getLastModifiedID(Integer sensorID) {
         long sensorLastModified = -1;
 

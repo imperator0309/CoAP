@@ -48,7 +48,7 @@ public class MenuController {
 
     public void showSensorChart() throws IOException {
         final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis(0, 50, 2);
+        final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Number of sensors");
@@ -135,7 +135,7 @@ public class MenuController {
     }
     public void showTemperatureChart() throws IOException {
         final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis(10, 40, 1);
+        final NumberAxis yAxis = new NumberAxis(0, 60, 1);
         xAxis.setLabel("Time");
         xAxis.setAnimated(false);
         yAxis.setLabel("Average Temperature °C");
@@ -254,13 +254,8 @@ public class MenuController {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(6), ev -> {
             updateSensorView();
             sensorDetail.getEngine().loadContent("<br /><br />" + "Click any active sensor to see the information");
-            ArrayList<Integer> sensorList = database.getSensorId();
-            for(Integer i: sensorList) {
-                if(System.nanoTime()/1e6 - database.getLastModifiedID(i)/1e6 >= 60000) {
-                    database.removeSensor(i);
-                    updateSensorView();
-                }
-            }
+            database.removeDisconnectedSensor();
+            updateSensorView();
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
@@ -269,6 +264,7 @@ public class MenuController {
     public void initialize() {
         try {
             database = Database.getDatabase();
+            database.clearDatabase();
             Server server = new Server();
             server.start();
             mainLabel.setText("Sensor statistics");
