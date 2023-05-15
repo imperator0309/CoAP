@@ -1,6 +1,8 @@
 package ProjectDemo.Server.Database;
 
+import ProjectDemo.Message.CommandMessage;
 import ProjectDemo.Message.SensorMessage;
+import Protocol.CoapClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -120,16 +122,6 @@ public class Database {
         }
     }
 
-    public void removeSensor(int sensor_id) {
-        try {
-            String query = "DELETE FROM sensor WHERE sensor_id=" + sensor_id + ";";
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(query);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public void removeDisconnectedSensor() {
         try {
             String query = "DELETE " +
@@ -153,13 +145,35 @@ public class Database {
      * @param status gets values RUNNING or SUSPENDED
      */
     public void changeSensorStatus(int sensor_id, String status) {
+        boolean sendCommandMessageFlag = true;
         try {
-            String query = "UPDATE sensor " + "SET sensor_status= " + "\"" + status + "\""
-                    + " " + "WHERE sensor_id=" + sensor_id + ";";
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(query);
-        } catch (SQLException e) {
+            CoapClient client = new CoapClient("coap://localhost:5683/command");
+            CommandMessage.Command command;
+
+            if (status.equals("RUNNING")) {
+                command = CommandMessage.Command.RESUME;
+            } else {
+                command = CommandMessage.Command.SUSPEND;
+            }
+
+            CommandMessage message = new CommandMessage(sensor_id, command);
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonMessage = mapper.writeValueAsString(message);
+            client.post(jsonMessage.getBytes());
+        } catch (Exception e) {
             e.printStackTrace();
+            sendCommandMessageFlag = false;
+        }
+
+        if (sendCommandMessageFlag) {
+            try {
+                String query = "UPDATE sensor " + "SET sensor_status= " + "\"" + status + "\""
+                        + " " + "WHERE sensor_id=" + sensor_id + ";";
+                Statement statement = connection.createStatement();
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
