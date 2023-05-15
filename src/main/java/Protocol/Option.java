@@ -6,7 +6,7 @@ public class Option {
     private int optionDelta;
     private int optionLength;
     private OptionDefinition definition;
-    byte[] value = null;
+    byte[] value;
 
 
     public Option(int preOptionNumber ,int delta, byte[] value) throws MessageFormatException {
@@ -18,15 +18,12 @@ public class Option {
         this.optionLength = valueLength;
         this.value = value;
         switch (delta + preOptionNumber) {
-            case 6 -> {
-                setDefinition(OptionDefinition.OBSERVE);
-            }
-            case 11 -> {
-                setDefinition(OptionDefinition.URI_PATH);
-            }
-            default -> {
-                throw new MessageFormatException("Unknown Option Definition");
-            }
+            case 6 ->
+                    setDefinition(OptionDefinition.OBSERVE);
+            case 11 ->
+                    setDefinition(OptionDefinition.URI_PATH);
+            default ->
+                    throw new MessageFormatException("Unknown Option Definition");
         }
     }
 
@@ -68,19 +65,21 @@ public class Option {
 
         public final int value;
 
-        private OptionDefinition(final int value) {
+        OptionDefinition(final int value) {
             this.value = value;
         }
 
         public OptionDefinition valueOf(int value) throws MessageFormatException {
             switch (value) {
-                case 6: return OBSERVE;
-                case 11: return URI_PATH;
-                default: throw new MessageFormatException("Unknown Option Definition");
+                case 6 -> {
+                    return OBSERVE;
+                }
+                case 11 -> {
+                    return URI_PATH;
+                }
+                default ->
+                        throw new MessageFormatException("Unknown Option Definition");
             }
         }
-    }
-
-    public static void main(String[] args) {
     }
 }

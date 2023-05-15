@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class DataGenerator extends Thread {
     private int sensor_id;
     private CoapClient client;
-    private long time_interval;
+    private final long time_interval;
     private boolean running;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Random generator = new Random();
@@ -25,14 +25,14 @@ public class DataGenerator extends Thread {
 
     @Override
     public  void run() {
-       while (true) {
-           try {
-               generateData();
-               TimeUnit.MILLISECONDS.sleep(time_interval);
-           } catch (InterruptedException ex) {
-               ex.printStackTrace();
-           }
-       }
+        while (true) {
+            try {
+                generateData();
+                TimeUnit.MILLISECONDS.sleep(time_interval);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void generateData() {

@@ -1,28 +1,16 @@
 package Protocol;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import CoAPException.MessageFormatException;
 public final class CoAP {
     public static final int VERSION = 1;
     public static final int DEFAULT_PORT = 5683;
-    public static final int VERSION_BITS_LENGTH = 2;
-    public static final int TYPE_BITS_LENGTH = 2;
-    public static final int TKL_BITS_LENGTH = 4;
-    public static final int CODE_BITS_LENGTH = 8;
-    public static final int CODE_CLASS_BITS_LENGTH = 3;
-    public static final int CODE_DETAIL_BITS_LENGTH = 5;
-    public static final int MESSAGE_ID_BITS_LENGTH = 16;
-    public static final int OPTION_DELTA_BITS_LENGTH = 4;
-    public static final int OPTION_LENGTH_BITS_LENGTH = 4;
-    public static final String PROTOCAL_SCHEME = "coap";
-    public static final String PROTOCOL_SCHEME_SEPARATOR = "//";
+    public static final String PROTOCOL_SCHEME = "coap";
+    public static final String PROTOCOL_SCHEME_SEPARATOR = "://";
     public static final String SCHEME_SEPARATOR = "/";
+    public static final String PORT_SCHEME_SEPARATOR = ":";
 
     public static final byte END_HEADER_BYTE = (byte) (0xFF);
 
-    private static final Map<String, ResponseCode> responseCodeMap = new HashMap<>();
     private CoAP() {
 
     }
@@ -40,9 +28,9 @@ public final class CoAP {
         ACK(2),
         RST(3);
 
-        private int value;
+        private final int value;
 
-        private Type(int value) {
+        Type(int value) {
             this.value = value;
         }
 
@@ -60,9 +48,8 @@ public final class CoAP {
                 case 3 -> {
                     return RST;
                 }
-                default -> {
-                    throw new MessageFormatException("Unknown message type");
-                }
+                default ->
+                        throw new MessageFormatException("Unknown message type");
             }
         }
     }
@@ -75,7 +62,7 @@ public final class CoAP {
 
         public final int value;
 
-        private Code(final int value) {
+        Code(final int value) {
             this.value = value;
         }
 
@@ -93,9 +80,8 @@ public final class CoAP {
                 case 4 -> {
                     return DELETE;
                 }
-                default -> {
-                    throw new MessageFormatException("Unknown Protocol.CoAP request code");
-                }
+                default ->
+                        throw new MessageFormatException("Unknown Protocol.CoAP request code");
             }
         }
     }
@@ -107,7 +93,7 @@ public final class CoAP {
 
         public final int value;
 
-        private CodeClass(final int value) {
+        CodeClass(final int value) {
             this.value = value;
         }
     }
@@ -131,7 +117,7 @@ public final class CoAP {
         public final int codeClass;
         public final int codeDetail;
 
-        private ResponseCode(CodeClass codeClass, final int codeDetail) {
+        ResponseCode(CodeClass codeClass, final int codeDetail) {
             this.codeClass = codeClass.value;
             this.codeDetail = codeDetail;
             this.value = codeClass.value << 5 | codeDetail;
@@ -147,9 +133,8 @@ public final class CoAP {
                 case 4 -> {
                     return valueOfErrorCode(codeDetail);
                 }
-                default -> {
-                    throw new MessageFormatException("Not a Coap response code");
-                }
+                default ->
+                        throw new MessageFormatException("Not a Coap response code");
             }
         }
 

@@ -1,6 +1,8 @@
 package ProjectDemo.Server.Database;
 
+import ProjectDemo.Message.CommandMessage;
 import ProjectDemo.Message.SensorMessage;
+import Protocol.CoapClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,8 +16,6 @@ public class Database {
 
     private Connection connection;
     private static final Database database = new Database();
-
-    public static double CALCULATING_COEFFICIENT = 0.25;
 
     private Database() {
         try {
@@ -78,8 +78,8 @@ public class Database {
             ResultSet result = statement.executeQuery(query);
 
             if (!result.next()) {
-                double delay = System.nanoTime() - message.getLast_time_modified(); //nano second
-                double throughput = jsonMessage.getBytes().length / delay; //kbps
+                double delay = System.nanoTime() - message.getLast_time_modified(); //nanosecond
+                double throughput = jsonMessage.getBytes().length / delay; //bytes per nanosecond
                 String status = "RUNNING";
 
                 query = "INSERT INTO sensor(sensor_id, sensor_data, last_time_modified, sensor_status, delay, throughput)"
@@ -95,14 +95,8 @@ public class Database {
 
                 preparedStatement.executeUpdate();
             } else {
-                double preDelay = result.getDouble("delay");
-                double preThroughput = result.getDouble("throughput");
-
-                double delay = (1 - CALCULATING_COEFFICIENT) * preDelay +
-                        CALCULATING_COEFFICIENT * (System.nanoTime() - message.getLast_time_modified());
-                double throughput = (1 - CALCULATING_COEFFICIENT) * preThroughput +
-                        CALCULATING_COEFFICIENT * (Double.valueOf(jsonMessage.length()) /
-                                (System.nanoTime() - message.getLast_time_modified()));
+                double delay = System.nanoTime() - message.getLast_time_modified();
+                double throughput = jsonMessage.getBytes().length * 1.0 / delay;
 
                 query = "update sensor "
                         + "set sensor_data =?," +
@@ -128,11 +122,18 @@ public class Database {
         }
     }
 
-    public void removeSensor(int sensor_id) {
+    public void removeDisconnectedSensor() {
         try {
-            String query = "DELETE FROM sensor WHERE sensor_id=" + sensor_id + ";";
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(query);
+            String query = "DELETE " +
+                    "FROM sensor " +
+                    "WHERE last_time_modified < ? AND sensor_status = ?";
+
+            double checkSensorTimeOut = 6 * 1e9;
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setDouble(1, System.nanoTime() - checkSensorTimeOut);
+            preparedStatement.setString(2, "RUNNING");
+            preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -144,15 +145,48 @@ public class Database {
      * @param status gets values RUNNING or SUSPENDED
      */
     public void changeSensorStatus(int sensor_id, String status) {
+        boolean sendCommandMessageFlag = true;
         try {
-            String query = "UPDATE sensor " + "SET sensor_status= " + "\'" + status + "\'"
-                    + " " + "WHERE sensor_id=" + sensor_id + ";";
+            CoapClient client = new CoapClient("coap://localhost:5683/command");
+            CommandMessage.Command command;
+
+            if (status.equals("RUNNING")) {
+                command = CommandMessage.Command.RESUME;
+            } else {
+                command = CommandMessage.Command.SUSPEND;
+            }
+
+            CommandMessage message = new CommandMessage(sensor_id, command);
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonMessage = mapper.writeValueAsString(message);
+            client.post(jsonMessage.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendCommandMessageFlag = false;
+        }
+
+        if (sendCommandMessageFlag) {
+            try {
+                String query = "UPDATE sensor " + "SET sensor_status= " + "\"" + status + "\""
+                        + " " + "WHERE sensor_id=" + sensor_id + ";";
+                Statement statement = connection.createStatement();
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void clearDatabase() {
+        try {
+            String query = "DELETE FROM sensor";
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     public long getLastModifiedID(Integer sensorID) {
         long sensorLastModified = -1;

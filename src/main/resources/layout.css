@@ -6,13 +6,16 @@
 }
 
 .list-cell:filled:selected:focused, .list-cell:filled:selected {
-    -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
-    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(pink 0%, pink 25%, pink 75%, pink 100%);
 }
 
 .list-cell:filled:hover {
-    -fx-background-color: #0093ff;
-    -fx-text-fill: white;
+    -fx-background-color: lightpink;
+}
+
+.list-cell {
+  -fx-font-size: 20pt;
+  -fx-font-weight: 800
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:top {
