@@ -15,6 +15,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
@@ -43,176 +44,150 @@ public class MenuController {
     @FXML
     private Pane sensorPane;
     final int WINDOW_SIZE = 10;
-    private ScheduledExecutorService scheduledExecutorService;
     private Database database;
 
-    public void showSensorChart() throws IOException {
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Time");
-        xAxis.setAnimated(false);
-        yAxis.setLabel("Number of sensors");
-        yAxis.setAnimated(false);
-        yAxis.setForceZeroInRange(false);
-        yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(false);
+    public void showChart() throws IOException {
+        final CategoryAxis xAxis1 = new CategoryAxis();
+        final NumberAxis yAxis1 = new NumberAxis();
+        xAxis1.setLabel("Time");
+        xAxis1.setAnimated(false);
+        yAxis1.setLabel("Number of sensors");
+        yAxis1.setAnimated(false);
+        yAxis1.setForceZeroInRange(false);
+        yAxis1.setTickLabelsVisible(true);
+        yAxis1.setMinorTickVisible(false);
+        final LineChart<String, Number> lineChart1 = new LineChart<>(xAxis1, yAxis1);
+        lineChart1.setTitle("Number of sensors active by time");
 
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Number of sensors active by time");
-        lineChart.setAnimated(false);
+        lineChart1.setAnimated(false);
 
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Num. of sensors");
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        series1.setName("Num. of sensors");
+        lineChart1.getData().add(series1);
+        lineChart1.setPrefSize(400, 300);
 
-        lineChart.getData().add(series);
-        lineChart.setPrefSize(600, 400);
+        final CategoryAxis xAxis2 = new CategoryAxis();
+        final NumberAxis yAxis2 = new NumberAxis();
+        xAxis2.setLabel("Time");
+        xAxis2.setAnimated(false);
+        yAxis2.setLabel("Average Throughput (kbps)");
+        yAxis2.setAnimated(false);
+        yAxis2.setForceZeroInRange(false);
+        yAxis2.setTickLabelsVisible(true);
+        yAxis2.setMinorTickVisible(false);
+
+        final LineChart<String, Number> lineChart2 = new LineChart<>(xAxis2, yAxis2);
+        lineChart2.setTitle("Show Average Throughput");
+        lineChart2.setAnimated(false);
+
+        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
+        series2.setName("Average throughput");
+        lineChart2.getData().add(series2);
+        lineChart2.setPrefSize(400, 300);
+
+        final CategoryAxis xAxis3 = new CategoryAxis();
+        final NumberAxis yAxis3 = new NumberAxis(0, 60, 5);
+        xAxis3.setLabel("Time");
+        xAxis3.setAnimated(false);
+        yAxis3.setLabel("Average Temperature °C");
+        yAxis3.setAnimated(false);
+        yAxis3.setForceZeroInRange(false);
+        yAxis3.setTickLabelsVisible(true);
+        yAxis3.setMinorTickVisible(false);
+
+        final LineChart<String, Number> lineChart3 = new LineChart<>(xAxis3, yAxis3);
+        lineChart3.setTitle("Show Average Temperature");
+        lineChart3.setAnimated(false);
+
+        XYChart.Series<String, Number> series3 = new XYChart.Series<>();
+        series3.setName("Average Temperature");
+        lineChart3.getData().add(series3);
+        lineChart3.setPrefSize(400, 300);
+
+        final CategoryAxis xAxis4 = new CategoryAxis();
+        final NumberAxis yAxis4 = new NumberAxis();
+        xAxis4.setLabel("Time");
+        xAxis4.setAnimated(false);
+        yAxis4.setLabel("Average Delay (ms)");
+        yAxis4.setAnimated(false);
+        yAxis4.setForceZeroInRange(false);
+        yAxis4.setTickLabelsVisible(true);
+        yAxis4.setMinorTickVisible(false);
+
+        final LineChart<String, Number> lineChart4 = new LineChart<>(xAxis4, yAxis4);
+        lineChart4.setTitle("Show Average Delay");
+        lineChart4.setAnimated(false);
+
+        XYChart.Series<String, Number> series4 = new XYChart.Series<>();
+        series4.setName("Average Delay");
+        lineChart4.getData().add(series4);
+        lineChart4.setPrefSize(400, 300);
+
         Stage stage2 = new Stage();
-        stage2.setTitle("Sensor chart - Number of sensors");
+        stage2.setTitle("Sensor analytics");
         stage2.getIcons().add(new Image(getClass().getClassLoader().getResource("icon.png").openStream()));
-        Scene scene = new Scene(lineChart);
+        FlowPane sensorFlowPane = new FlowPane();
+        sensorFlowPane.getChildren().addAll(lineChart1, lineChart2, lineChart3, lineChart4);
+        Scene scene = new Scene(sensorFlowPane, 800, 600);
         stage2.setScene(scene);
         stage2.show();
 
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService scheduledExecutorService1 = Executors.newSingleThreadScheduledExecutor();
 
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledExecutorService1.scheduleAtFixedRate(() -> {
             ArrayList <Integer> sensorArray = database.getSensorId();
             int runningSensor = (int) sensorArray.stream().filter(item -> database.getStatus(item).equals("RUNNING")).count();
             Platform.runLater(() -> {
                 Date now = new Date();
-                series.getData().add(
+                series1.getData().add(
                         new XYChart.Data<>(simpleDateFormat.format(now), runningSensor));
-                if (series.getData().size() > WINDOW_SIZE)
-                    series.getData().remove(0);
+                series1.getNode().setStyle("-fx-stroke: blue;");
+                if (series1.getData().size() > WINDOW_SIZE)
+                    series1.getData().remove(0);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
-    }
 
-    public void showThroughputChart() throws IOException {
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Time");
-        xAxis.setAnimated(false);
-        yAxis.setLabel("Average Throughput (kbps)");
-        yAxis.setAnimated(false);
-        yAxis.setForceZeroInRange(false);
-        yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(false);
+        ScheduledExecutorService scheduledExecutorService2 = Executors.newSingleThreadScheduledExecutor();
 
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Average Throughput");
-        lineChart.setAnimated(false);
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Average throughput");
-
-        lineChart.getData().add(series);
-        lineChart.setPrefSize(600, 400);
-        Stage stage2 = new Stage();
-        stage2.setTitle("Sensor chart - Average throughput");
-        stage2.getIcons().add(new Image(getClass().getClassLoader().getResource("icon.png").openStream()));
-        Scene scene = new Scene(lineChart);
-        stage2.setScene(scene);
-        stage2.show();
-
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledExecutorService2.scheduleAtFixedRate(() -> {
             double avgThroughput = database.getThroughput();
 
             Platform.runLater(() -> {
                 Date now = new Date();
-                series.getData().add(
+                series2.getData().add(
                         new XYChart.Data<>(simpleDateFormat.format(now), avgThroughput));
-                if (series.getData().size() > WINDOW_SIZE)
-                    series.getData().remove(0);
+                series2.getNode().setStyle("-fx-stroke: green;");
+                if (series2.getData().size() > WINDOW_SIZE)
+                    series2.getData().remove(0);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
 
+        ScheduledExecutorService scheduledExecutorService3 = Executors.newSingleThreadScheduledExecutor();
 
-    }
-    public void showTemperatureChart() throws IOException {
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis(0, 60, 1);
-        xAxis.setLabel("Time");
-        xAxis.setAnimated(false);
-        yAxis.setLabel("Average Temperature °C");
-        yAxis.setAnimated(false);
-        yAxis.setForceZeroInRange(false);
-        yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(false);
-
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Average Temperature");
-        lineChart.setAnimated(false);
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Average Temperature");
-
-        lineChart.getData().add(series);
-        lineChart.setPrefSize(600, 400);
-        Stage stage2 = new Stage();
-        stage2.setTitle("Sensor chart - Average temperature");
-        stage2.getIcons().add(new Image(getClass().getClassLoader().getResource("icon.png").openStream()));
-        Scene scene = new Scene(lineChart);
-        stage2.setScene(scene);
-        stage2.show();
-
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledExecutorService3.scheduleAtFixedRate(() -> {
             double avgTemp = database.getSensorData();
             Platform.runLater(() -> {
                 Date now = new Date();
-                series.getData().add(
+                series3.getData().add(
                         new XYChart.Data<>(simpleDateFormat.format(now), avgTemp));
-                if (series.getData().size() > WINDOW_SIZE)
-                    series.getData().remove(0);
+                if (series3.getData().size() > WINDOW_SIZE)
+                    series3.getData().remove(0);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
-    }
-    public void showDelayChart() throws IOException {
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Time");
-        xAxis.setAnimated(false);
-        yAxis.setLabel("Average Delay (ms)");
-        yAxis.setAnimated(false);
-        yAxis.setForceZeroInRange(false);
-        yAxis.setTickLabelsVisible(true);
-        yAxis.setMinorTickVisible(false);
 
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Show Average Delay");
-        lineChart.setAnimated(false);
+        ScheduledExecutorService scheduledExecutorService4 = Executors.newSingleThreadScheduledExecutor();
 
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Average Delay");
-
-        lineChart.getData().add(series);
-        lineChart.setPrefSize(600, 400);
-        Stage stage2 = new Stage();
-        stage2.setTitle("Sensor chart - Average delay");
-        stage2.getIcons().add(new Image(getClass().getClassLoader().getResource("icon.png").openStream()));
-        Scene scene = new Scene(lineChart);
-        stage2.setScene(scene);
-        stage2.show();
-
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledExecutorService4.scheduleAtFixedRate(() -> {
             double avgDelay = database.getDelay();
 
             Platform.runLater(() -> {
                 Date now = new Date();
-                series.getData().add(
+                series4.getData().add(
                         new XYChart.Data<>(simpleDateFormat.format(now), avgDelay));
-                if (series.getData().size() > WINDOW_SIZE)
-                    series.getData().remove(0);
+                series4.getNode().setStyle("-fx-stroke: black;");
+                if (series4.getData().size() > WINDOW_SIZE)
+                    series4.getData().remove(0);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
     }
