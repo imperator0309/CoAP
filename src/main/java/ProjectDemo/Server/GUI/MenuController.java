@@ -2,12 +2,14 @@ package ProjectDemo.Server.GUI;
 
 import ProjectDemo.Server.Database.Database;
 import ProjectDemo.Server.Mechanic.Server;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -58,13 +60,13 @@ public class MenuController {
         yAxis1.setMinorTickVisible(false);
         final LineChart<String, Number> lineChart1 = new LineChart<>(xAxis1, yAxis1);
         lineChart1.setTitle("Number of sensors active by time");
-
         lineChart1.setAnimated(false);
 
         XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.setName("Num. of sensors");
+        series1.setName("Number of sensors");
         lineChart1.getData().add(series1);
-        lineChart1.setPrefSize(400, 300);
+        lineChart1.getStylesheets().add("legend1.css");
+        lineChart1.setPrefSize(500, 350);
 
         final CategoryAxis xAxis2 = new CategoryAxis();
         final NumberAxis yAxis2 = new NumberAxis();
@@ -83,7 +85,8 @@ public class MenuController {
         XYChart.Series<String, Number> series2 = new XYChart.Series<>();
         series2.setName("Average throughput");
         lineChart2.getData().add(series2);
-        lineChart2.setPrefSize(400, 300);
+        lineChart2.getStylesheets().add("legend2.css");
+        lineChart2.setPrefSize(500, 350);
 
         final CategoryAxis xAxis3 = new CategoryAxis();
         final NumberAxis yAxis3 = new NumberAxis(0, 60, 5);
@@ -102,7 +105,8 @@ public class MenuController {
         XYChart.Series<String, Number> series3 = new XYChart.Series<>();
         series3.setName("Average Temperature");
         lineChart3.getData().add(series3);
-        lineChart3.setPrefSize(400, 300);
+        lineChart3.getStylesheets().add("legend3.css");
+        lineChart3.setPrefSize(500, 350);
 
         final CategoryAxis xAxis4 = new CategoryAxis();
         final NumberAxis yAxis4 = new NumberAxis();
@@ -121,18 +125,20 @@ public class MenuController {
         XYChart.Series<String, Number> series4 = new XYChart.Series<>();
         series4.setName("Average Delay");
         lineChart4.getData().add(series4);
-        lineChart4.setPrefSize(400, 300);
+        lineChart4.getStylesheets().add("legend4.css");
+        lineChart4.setPrefSize(500, 350);
+
 
         Stage stage2 = new Stage();
         stage2.setTitle("Sensor analytics");
         stage2.getIcons().add(new Image(getClass().getClassLoader().getResource("icon.png").openStream()));
         FlowPane sensorFlowPane = new FlowPane();
         sensorFlowPane.getChildren().addAll(lineChart1, lineChart2, lineChart3, lineChart4);
-        Scene scene = new Scene(sensorFlowPane, 800, 600);
+        Scene scene = new Scene(sensorFlowPane, 1000, 700);
         stage2.setScene(scene);
         stage2.show();
 
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
         ScheduledExecutorService scheduledExecutorService1 = Executors.newSingleThreadScheduledExecutor();
 
         scheduledExecutorService1.scheduleAtFixedRate(() -> {
@@ -140,11 +146,14 @@ public class MenuController {
             int runningSensor = (int) sensorArray.stream().filter(item -> database.getStatus(item).equals("RUNNING")).count();
             Platform.runLater(() -> {
                 Date now = new Date();
-                series1.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), runningSensor));
+                XYChart.Data<String, Number> data1 = new XYChart.Data<>(simpleDateFormat.format(now), runningSensor);
+                series1.getData().add(data1);
                 series1.getNode().setStyle("-fx-stroke: blue;");
                 if (series1.getData().size() > WINDOW_SIZE)
                     series1.getData().remove(0);
+
+                String style = "-fx-background-color: blue;";
+                data1.getNode().setStyle(style);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
 
@@ -155,11 +164,13 @@ public class MenuController {
 
             Platform.runLater(() -> {
                 Date now = new Date();
-                series2.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), avgThroughput));
+                XYChart.Data<String, Number> data2 = new XYChart.Data<>(simpleDateFormat.format(now), avgThroughput);
+                series2.getData().add(data2);
                 series2.getNode().setStyle("-fx-stroke: green;");
                 if (series2.getData().size() > WINDOW_SIZE)
                     series2.getData().remove(0);
+                String style2 = "-fx-background-color: green;";
+                data2.getNode().setStyle(style2);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
 
@@ -169,10 +180,13 @@ public class MenuController {
             double avgTemp = database.getSensorData();
             Platform.runLater(() -> {
                 Date now = new Date();
-                series3.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), avgTemp));
+                XYChart.Data<String, Number> data3 = new XYChart.Data<>(simpleDateFormat.format(now), avgTemp);
+                series3.getData().add(data3);
+                series3.getNode().setStyle("-fx-stroke: orange;");
                 if (series3.getData().size() > WINDOW_SIZE)
                     series3.getData().remove(0);
+                String style2 = "-fx-background-color: orange;";
+                data3.getNode().setStyle(style2);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
 
@@ -183,11 +197,13 @@ public class MenuController {
 
             Platform.runLater(() -> {
                 Date now = new Date();
-                series4.getData().add(
-                        new XYChart.Data<>(simpleDateFormat.format(now), avgDelay));
+                XYChart.Data<String, Number> data4 = new XYChart.Data<>(simpleDateFormat.format(now), avgDelay);
+                series4.getData().add(data4);
                 series4.getNode().setStyle("-fx-stroke: black;");
                 if (series4.getData().size() > WINDOW_SIZE)
                     series4.getData().remove(0);
+                String style = "-fx-background-color: black;";
+                data4.getNode().setStyle(style);
             });
         }, 0, 3000, TimeUnit.MILLISECONDS);
     }

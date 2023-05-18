@@ -1,0 +1,11 @@
+.chart-legend {
+    -fx-background-color: lightyellow;
+}
+
+.chart-legend-item {
+    -fx-text-fill: black;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-color: green;
+}
