@@ -243,7 +243,7 @@ public class Database {
         double sensorData = -1;
 
         try {
-            String query = "SELECT AVG(sensor_data) FROM sensor;";
+            String query = "SELECT AVG(sensor_data) FROM sensor WHERE sensor_status = \"RUNNING\";";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -277,7 +277,7 @@ public class Database {
     public double getDelay() {
         double delay = -1;
         try {
-            String query = "SELECT AVG(delay) FROM sensor;";
+            String query = "SELECT AVG(delay) FROM sensor WHERE sensor_status = \"RUNNING\";";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -309,7 +309,7 @@ public class Database {
     public double getThroughput() {
         double throughput = -1;
         try {
-            String query = "SELECT AVG(throughput) FROM sensor;";
+            String query = "SELECT AVG(throughput) FROM sensor WHERE sensor_status = \"RUNNING\";";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
