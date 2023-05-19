@@ -14,7 +14,7 @@ public class Response extends Message {
         setVersion(request.getVersion());
         setType(type);
         setTKL(request.getTKL());
-        setMessageID(request.getMessageID());
+        setMessageID(request.getMessageID() + 1);
         setToken(request.getToken());
         setOption(null);
     }
