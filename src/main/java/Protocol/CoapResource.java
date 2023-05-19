@@ -8,8 +8,9 @@ public class CoapResource implements Resource {
     private String name;
     private Resource parent;
     private final HashMap<String, Resource> children = new HashMap<>();
-    private boolean observable;
     private final HashSet<Endpoint> observers = new HashSet<>();
+    private CoapServer server;
+    private boolean observable;
     private byte[] data;
 
     protected CoapResource(String name) {
@@ -66,6 +67,7 @@ public class CoapResource implements Resource {
             Response response = new Response(CoAP.Type.NON, CoAP.ResponseCode.CONTENT,
                     new Random().nextInt(100), null, null, data);
             Exchange exchange = new Exchange(response, observer);
+            exchange.setChannel(server.getChannel());
             exchange.respond(CoAP.ResponseCode.CREATE, data);
         }
     }
@@ -93,6 +95,10 @@ public class CoapResource implements Resource {
     @Override
     public void setParent(Resource parent) {
         this.parent = parent;
+    }
+
+    public void setServer(CoapServer server) {
+        this.server = server;
     }
 
     @Override

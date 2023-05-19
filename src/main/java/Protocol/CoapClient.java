@@ -2,6 +2,8 @@ package Protocol;
 
 import CoAPException.*;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
@@ -12,6 +14,7 @@ public class CoapClient {
     private int port;
     private Endpoint server;
     private String resourcePath;
+    private DatagramSocket socket;
     private ObserveHandler observeHandler;
 
     public CoapClient(String url) throws CoapClientException {
@@ -34,6 +37,12 @@ public class CoapClient {
             System.err.println(e.getMessage());
             throw new CoapClientException("Invalid URL");
         }
+
+        try {
+            this.socket = new DatagramSocket();
+        } catch (IOException e) {
+            System.err.println("Failed to create client socket");
+        }
     }
 
     public Response get() {
@@ -43,7 +52,8 @@ public class CoapClient {
             Request request = new Request(CoAP.Type.NON, CoAP.Code.GET, new Random().nextInt(100),
                     token, option, null);
 
-            Exchange exchange = new Exchange(request, server);
+            Exchange exchange = new Exchange(server, socket);
+            exchange.setRequest(request);
             return exchange.request();
 
         } catch (MessageFormatException e) {
@@ -58,7 +68,9 @@ public class CoapClient {
             Option option = new Option(0, 11, resourcePath.getBytes());
             Request request = new Request(CoAP.Type.NON, CoAP.Code.POST, new Random().nextInt(100),
                     token, option, payload);
-            Exchange exchange = new Exchange(request, server);
+
+            Exchange exchange = new Exchange(server, socket);
+            exchange.setRequest(request);
             return exchange.request();
         } catch (MessageFormatException ex) {
             ex.printStackTrace();
@@ -179,6 +191,14 @@ public class CoapClient {
 
     public void setResourcePath(String resourcePath) {
         this.resourcePath = resourcePath;
+    }
+
+    public DatagramSocket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(DatagramSocket socket) {
+        this.socket = socket;
     }
 
     public ObserveHandler getObserveHandler() {

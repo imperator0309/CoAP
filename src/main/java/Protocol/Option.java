@@ -18,6 +18,8 @@ public class Option {
         this.optionLength = valueLength;
         this.value = value;
         switch (delta + preOptionNumber) {
+            case 0 ->
+                    setDefinition(OptionDefinition.TEXT_PLAIN);
             case 6 ->
                     setDefinition(OptionDefinition.OBSERVE);
             case 11 ->
@@ -60,9 +62,9 @@ public class Option {
     }
 
     public enum OptionDefinition {
+        TEXT_PLAIN(0),
         URI_PATH(6),
         OBSERVE(10);
-
         public final int value;
 
         OptionDefinition(final int value) {
@@ -71,6 +73,9 @@ public class Option {
 
         public OptionDefinition valueOf(int value) throws MessageFormatException {
             switch (value) {
+                case 0 -> {
+                    return TEXT_PLAIN;
+                }
                 case 6 -> {
                     return OBSERVE;
                 }
