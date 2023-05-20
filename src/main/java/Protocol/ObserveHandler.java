@@ -9,7 +9,7 @@ import java.net.SocketTimeoutException;
 import java.util.Random;
 
 import CoAPException.*;
-public class ObserveHandler extends Thread{
+public class ObserveHandler extends Thread {
     private CoapClient client;
     private String resourcePath;
     private Response response;
@@ -49,8 +49,10 @@ public class ObserveHandler extends Thread{
     public boolean register() throws CoapClientException {
         try {
             Option option = new Option(0, 6, resourcePath.getBytes());
+            Token token = new Token(new Random().nextInt(100));
+
             Request request = new Request(CoAP.Type.CON, CoAP.Code.GET,
-                    new Random().nextInt(100), null, option, null);
+                    new Random().nextInt(100), token, option, null);
             byte[] buffer = request.toByteArray();
             DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length,
                     client.getServer().getAddress(), client.getServer().getPort());
@@ -71,7 +73,8 @@ public class ObserveHandler extends Thread{
 
             Response response = new Response(buffer);
 
-            if (response.getType() == CoAP.Type.ACK && response.getCode() == CoAP.ResponseCode.CONTENT) {
+            if (response.getType() == CoAP.Type.ACK && response.getCode() == CoAP.ResponseCode.CONTENT &&
+            response.getToken().getValue() == token.getValue()) {
                 datagramSocket.setSoTimeout(0);
                 return true;
             } else if (response.getType() == CoAP.Type.RST &&
