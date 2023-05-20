@@ -523,7 +523,7 @@ nối với server theo thứ tự ID của cảm biến.
 </p>
 Chương trình có 4 biểu đồ, gồm số sensor đang kết nối, nhiệt độ trung
 bình, độ trễ trung bình và thông lượng trung bình. Các biểu đồ và danh
-sách cảm biến sẽ cập nhật dữ liệu từ cơ sở dữ liệu sau 4 giây.
+sách cảm biến sẽ cập nhật dữ liệu từ cơ sở dữ liệu sau 3 giây.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/U3Vzc3kgQW1vZ3Vz/imagedump/main/coapImg/graphs.png"/>
@@ -586,5 +586,5 @@ Quá trình làm việc:
  với manh hoang nguyen là Nguyễn Mạnh Hoàng
 
 -   Code:
-     [link github ](https://raw.githubusercontent.com/imperator0309/CoAP/commits/main)với imperator0309 và NguyenPhucSon là Nguyễn Phúc Sơn, chanchan011
+     [link github ](https://raw.github.com/imperator0309/CoAP/commits/main)với imperator0309 và NguyenPhucSon là Nguyễn Phúc Sơn, chanchan011
      là Nguyễn Hồng Lĩnh, KIENAYA là Phạm Trung Kiên và U3Vzc3kgQW1vZ3Vz và Bùi Trần Hải Nam
