@@ -160,6 +160,8 @@ public class Database {
             ObjectMapper mapper = new ObjectMapper();
             String jsonMessage = mapper.writeValueAsString(message);
             client.post(jsonMessage.getBytes());
+
+            client.destroy();
         } catch (Exception e) {
             e.printStackTrace();
             sendCommandMessageFlag = false;
