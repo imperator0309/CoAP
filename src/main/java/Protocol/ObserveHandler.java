@@ -31,15 +31,17 @@ public class ObserveHandler extends Thread{
     @Override
     public void run() {
         try {
-            boolean ack = register();
-            while (!ack) {
+            boolean ack;
+
+            do {
                 ack = register();
-            }
+            } while (!ack);
 
             while (observing) {
                 observation();
             }
         } catch (CoapClientException e) {
+            System.out.println(e.getMessage());
             observing = false;
         }
     }
@@ -116,6 +118,9 @@ public class ObserveHandler extends Thread{
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (MessageFormatException ex) {
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

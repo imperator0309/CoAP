@@ -81,7 +81,7 @@ public class CoapClient {
     /**
      * start observing an observable resource
      */
-    public synchronized void observe() throws CoapClientException{
+    public void observe() throws CoapClientException{
         if (observeHandler == null) {
             throw new CoapClientException("Observing Handler Cannot be Null");
         } else {
@@ -96,6 +96,13 @@ public class CoapClient {
      */
     public void cancelObserving() {
         observeHandler.setCancelled(true);
+    }
+
+    /**
+     * close a client
+     */
+    public void destroy() {
+        socket.close();
     }
 
     private void decodeLink() {

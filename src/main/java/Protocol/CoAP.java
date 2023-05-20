@@ -3,13 +3,13 @@ package Protocol;
 import CoAPException.MessageFormatException;
 public final class CoAP {
     public static final int VERSION = 1;
-    public static final int DEFAULT_PORT = 5683;
+    public static final int DEFAULT_PORT = 5683; //coap default port - RFC 7252
     public static final String PROTOCOL_SCHEME = "coap";
     public static final String PROTOCOL_SCHEME_SEPARATOR = "://";
     public static final String SCHEME_SEPARATOR = "/";
     public static final String PORT_SCHEME_SEPARATOR = ":";
 
-    public static final byte END_HEADER_BYTE = (byte) (0xFF);
+    public static final byte PAYLOAD_MAKER = (byte) (0xFF);
 
     private CoAP() {
 

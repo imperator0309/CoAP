@@ -69,11 +69,11 @@ public class CoapServer extends Thread {
     private void handleClient() {
         try {
             this.selector.select();
-            Iterator iterator = selector.selectedKeys().iterator();
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
 
             while (iterator.hasNext()) {
                 try {
-                    SelectionKey key = (SelectionKey) iterator.next();
+                    SelectionKey key = iterator.next();
                     iterator.remove();
 
                     if (!key.isValid()) {
@@ -107,32 +107,22 @@ public class CoapServer extends Thread {
                                 exchange.setResponse(response);
                                 exchange.respond(CoAP.ResponseCode.BAD_OPTION, null);
                             } else {
-                                int endHeaderIndex = 4 + request.getTKL() + 1 + request.getOption().getOptionLength();
-                                                    //4 bytes default header, tkl token, 1 option info + option length value
-                                if (data[endHeaderIndex] != (byte) (0xFF)) {
-                                    Response response = new Response(request, CoAP.Type.ACK);
+                                exchange.setRequest(request);
+                                String uri = new String(request.getOption().getValue(), 0,
+                                        request.getOption().getOptionLength());
+
+                                CoapResource resource = getResource(uri);
+
+                                Response response = new Response(request, CoAP.Type.ACK);
+                                if (resource == null) {
                                     response.setOption(null);
                                     exchange.setResponse(response);
-                                    exchange.respond(CoAP.ResponseCode.BAD_OPTION, null);
+                                    exchange.respond(CoAP.ResponseCode.NOT_FOUND, null);
                                 } else {
-                                    exchange.setRequest(request);
-                                    String uri = new String(request.getOption().getValue(), 0,
-                                            request.getOption().getOptionLength());
-
-                                    CoapResource resource = getResource(uri);
-
-                                    if (resource == null) {
-                                        Response response = new Response(request, CoAP.Type.ACK);
-                                        response.setOption(null);
-                                        exchange.setResponse(response);
-                                        exchange.respond(CoAP.ResponseCode.NOT_FOUND, null);
-                                    } else {
-                                        Response response = new Response(request, CoAP.Type.ACK);
-                                        Option option = new Option(0, 0, null);
-                                        response.setOption(option);
-                                        exchange.setResponse(response);
-                                        resource.handleRequest(exchange);
-                                    }
+                                    Option option = new Option(0, 0, null);
+                                    response.setOption(option);
+                                    exchange.setResponse(response);
+                                    resource.handleRequest(exchange);
                                 }
                             }
                         } else {
@@ -150,6 +140,15 @@ public class CoapServer extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void destroy() {
+        try {
+            channel.close();
+        } catch (IOException ex) {
+            System.err.println("cannot close server channel");
+            ex.printStackTrace();
         }
     }
 

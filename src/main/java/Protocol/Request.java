@@ -6,10 +6,6 @@ import java.io.ByteArrayOutputStream;
 public class Request extends Message {
     CoAP.Code code;
 
-    public Request() {
-
-    }
-
     public Request(CoAP.Type type, CoAP.Code code, int mid, Token token, Option option, byte[] payload) {
         int tkl;
         if (token == null || token.getTokenBytes() == null) {
@@ -26,7 +22,7 @@ public class Request extends Message {
         setPayload(payload);
     }
 
-    public Request(byte[] data) {
+    public Request(byte[] data) throws MessageFormatException {
         try {
             int firstByte= data[0];
             int version = (firstByte >> 6) & 0b00000011;
@@ -41,49 +37,66 @@ public class Request extends Message {
                 mid = (mid << 8) + (tmp & 0xFF);
             }
 
-            int optionInfo = data[4 + tkl];
-            int delta = (optionInfo >> 4) & 0b00001111;
-            int length = optionInfo & 0b00001111;
-
-            int index = 5 + tkl;
-            byte[] optionValue = new byte[length];
-            for (int i = 0; i < length; i++) {
-                optionValue[i] = data[index];
-                index++;
-            }
-
-            index++; //skip end header marking byte
-
             CoAP.Type type = CoAP.Type.valueOf(typeCode);
             CoAP.Code method = CoAP.Code.valueOf(code);
-            Option option = new Option(0, delta, optionValue);
             Token token = new Token();
+
+            int index = 4;
+
+            if (tkl > 0) {
+                byte[] tokenData = new byte[tkl];
+                for (int i = 0; i < tkl; i++) {
+                    tokenData[i] = data[index + i];
+                    index++;
+                }
+                token.setTokenBytes(tokenData);
+            }
 
             setVersion(version);
             setType(type);
             setTKL(tkl);
             setCode(method);
             setMessageID(mid);
-            setOption(option);
-
-            if (data.length - index > 0) {
-                byte[] payload = new byte[data.length - index];
-                for (int i = 0; i < payload.length; i++) {
-                    payload[i] = data[index];
-                    index++;
-                }
-                setPayload(payload);
-            }
-
-            if (tkl > 0) {
-                byte[] tokenData = new byte[tkl];
-                for (int i = 0; i < tkl; i++) {
-                    tokenData[i] = data[4 + i];
-                }
-                token.setTokenBytes(tokenData);
-            }
-
             setToken(token);
+
+            if (index < data.length) { //has option
+                if (data[index] != CoAP.PAYLOAD_MAKER) {
+                    int optionInfo = data[index];
+                    int delta = (optionInfo >> 4) & 0b00001111;
+                    int length = optionInfo & 0b00001111;
+
+                    index++; //next to option value first byte
+
+                    byte[] optionValue = new byte[length];
+
+                    for (int i = 0; i < length; i++) {
+                        optionValue[i] = data[index];
+                        index++;
+                    }
+
+                    Option option = new Option(0, delta, optionValue);
+                    setOption(option);
+                }
+
+                if (data.length - index > 0) {
+                    if (data.length - index == 1) {
+                        throw new MessageFormatException("null payload with payload maker");
+                    } else {
+                        if (data[index] != CoAP.PAYLOAD_MAKER) {
+                            throw new MessageFormatException("payload without payload marker");
+                        } else {
+                            index++; //skip end header marking byte
+
+                            byte[] payload = new byte[data.length - index];
+                            for (int i = 0; i < payload.length; i++) {
+                                payload[i] = data[index];
+                                index++;
+                            }
+                            setPayload(payload);
+                        }
+                    }
+                }
+            }
         } catch (MessageFormatException exception) {
             System.err.println("Failed to read request");
         } catch (IndexOutOfBoundsException e) {
@@ -117,9 +130,16 @@ public class Request extends Message {
         4 default header bytes,
         TKL bytes for token,
         option length + 1 bytes for option (1 bytes for delta & value length; length bytes for value)
-        1 last bytes for marker 0xFF
         */
-        byte[] tmp = new byte[4 + this.getTKL() + this.getOption().getOptionLength() + 1 + 1];
+
+        int headerLength = 4 + getTKL() + 1 + getOption().getOptionLength();
+        boolean hasPayload = getPayload() != null && getPayload().length > 0;
+
+        if (hasPayload)
+            headerLength++; //+1 payload marker byte
+
+
+        byte[] tmp = new byte[headerLength];
         tmp[0] = firstByte;
         tmp[1] = secondByte;
         tmp[2] = firstID;
@@ -136,16 +156,20 @@ public class Request extends Message {
 
         tmp[current] = optionFirstByte;
         current++;
+
         for (int i = 0; i < getOption().getOptionLength(); i++) {
             tmp[current] = getOption().getValue()[i];
             current++;
         }
-        tmp[current] = CoAP.END_HEADER_BYTE;
 
         ByteArrayOutputStream writer = new ByteArrayOutputStream();
-        writer.writeBytes(tmp);
-        if (getPayload() != null && getPayload().length > 0) {
+
+        if (hasPayload) {
+            tmp[current] = CoAP.PAYLOAD_MAKER;
+            writer.writeBytes(tmp);
             writer.writeBytes(getPayload());
+        } else {
+            writer.writeBytes(tmp);
         }
 
         return writer.toByteArray();

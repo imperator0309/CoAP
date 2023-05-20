@@ -36,7 +36,7 @@ public class Response extends Message {
         setPayload(payload);
     }
 
-    public Response(byte[] data) {
+    public Response(byte[] data) throws MessageFormatException {
         try {
             int firstByte= data[0];
             int version = (firstByte >> 6) & 0b00000011;
@@ -51,51 +51,70 @@ public class Response extends Message {
                 mid = (mid << 8) + (tmp & 0xFF);
             }
 
-            int optionInfo = data[4 + tkl];
-            int delta = (optionInfo >> 4) & 0b00001111;
-            int length = optionInfo & 0b00001111;
-
-            int index = 5 + tkl;
-
-            if ((optionInfo != (byte)(0xFF))) {
-                byte[] optionValue = new byte[length];
-                for (int i = 0; i < length; i++) {
-                    optionValue[i] = data[index];
-                    index++;
-                }
-                Option option = new Option(0, delta, optionValue);
-                setOption(option);
-                index++; //skip end header marking byte
-            }
-
             CoAP.Type type = CoAP.Type.valueOf(typeCode);
             CoAP.ResponseCode code = CoAP.ResponseCode.valueOf(codeByte);
             Token token = new Token();
+
+            int index = 4;
+
+            if (tkl > 0) {
+                byte[] tokenData = new byte[tkl];
+                for (int i = 0; i < tkl; i++) {
+                    tokenData[i] = data[index + i];
+                    index++;
+                }
+                token.setTokenBytes(tokenData);
+            }
 
             setVersion(version);
             setType(type);
             setTKL(tkl);
             setCode(code);
             setMessageID(mid);
-
-            if (data.length - index > 0) {
-                byte[] payload = new byte[data.length - index];
-                for (int i = 0; i < payload.length; i++) {
-                    payload[i] = data[index];
-                    index++;
-                }
-                setPayload(payload);
-            }
-
-            if (tkl > 0) {
-                byte[] tokenData = new byte[tkl];
-                for (int i = 0; i < tkl; i++) {
-                    tokenData[i] = data[4 + i];
-                }
-                token.setTokenBytes(tokenData);
-            }
-
             setToken(token);
+
+            if (index < data.length) { //has option
+                if (data[index] != CoAP.PAYLOAD_MAKER) {
+                    int optionInfo = data[index];
+                    int delta = (optionInfo >> 4) & 0b00001111;
+                    int length = optionInfo & 0b00001111;
+
+                    index++; //next to option value first byte;
+
+                    byte[] optionValue = null;
+
+                    if (length > 0) {
+                        optionValue = new byte[length];
+
+                        for (int i = 0; i < length; i++) {
+                            optionValue[i] = data[index];
+                            index++;
+                        }
+                    }
+
+                    Option option = new Option(0, delta, optionValue);
+                    setOption(option);
+                }
+
+                if (data.length - index > 0) {
+                    if (data.length - index == 1) {
+                        throw new MessageFormatException("null payload with payload marker");
+                    } else {
+                        if (data[index] != CoAP.PAYLOAD_MAKER) {
+                            throw new MessageFormatException("payload without payload marker");
+                        } else {
+                            index++; //skip end header marking byte
+
+                            byte[] payload = new byte[data.length - index];
+                            for (int i = 0; i < payload.length; i++) {
+                                payload[i] = data[index];
+                                index++;
+                            }
+                            setPayload(payload);
+                        }
+                    }
+                }
+            }
         } catch (MessageFormatException e) {
             System.err.println("Failed to Create Response");
         } catch (IndexOutOfBoundsException ex) {
@@ -134,7 +153,7 @@ public class Response extends Message {
         }
 
         if (getOption() != null && getOption().getValue() != null) {
-            byte optionInfo = (byte) ((getOption().getOptionDelta() << 4) |
+            byte optionInfo = (byte) ((getOption().getOptionDelta() << 4) & 0b11110000 |
                     (getOption().getOptionLength() & 0b00001111));
 
             byte[] option = new byte[getOption().getOptionLength() + 1];
@@ -145,12 +164,11 @@ public class Response extends Message {
             writer.writeBytes(option);
         }
 
-        byte[] end = new byte[1];
-        end[0] = CoAP.END_HEADER_BYTE;
+        if (getPayload() != null && getPayload().length > 0) { //has payload
+            byte[] end = new byte[1];
+            end[0] = CoAP.PAYLOAD_MAKER;
 
-        writer.writeBytes(end);
-
-        if (getPayload() != null && getPayload().length > 0) {
+            writer.writeBytes(end);
             writer.writeBytes(getPayload());
         }
 
